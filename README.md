@@ -36,8 +36,11 @@ father.listen(3000);
 ### vhost(options)
 
  - `domain` - **String | RegExp** Name or Regex of virtual host *(required)*
- - `framework` - **Function** Functions releated to this virtual host *(required)*
- - `port` - **Integer** If Port is set, send raw request like a proxy *(default "disabled")*
+ - `framework` - **Function** Functions releated to this virtual host *(optional)*
+ 
+ - `proxies` - **Object** Object for build http proxy, related to [`http-proxy`](https://github.com/nodejitsu/node-http-proxy) *(optional)*
+
+releated to https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy.js#L34-L51
 
 #### Examples
 
