@@ -1,6 +1,6 @@
 #top-vhost [![Build Status](https://travis-ci.org/hex7c0/top-vhost.svg?branch=master)](https://travis-ci.org/hex7c0/top-vhost) [![NPM version](https://badge.fury.io/js/top-vhost.svg)](http://badge.fury.io/js/top-vhost)
 
-sitemap and robots for [expressjs 4](http://expressjs.com/)
+top-down virtual host for [expressjs 4](http://expressjs.com/). Optional, you can set this module like a proxy or a redirect.
 
 ## Installation
 
@@ -36,6 +36,7 @@ father.listen(3000);
 ### vhost(options)
 
  - `domain` - **String | RegExp** Name or Regex of virtual host *(required)*
+ - `redirect` - **Array** Array of url that will be redirected to this domain *(default "disabled")*
  - `framework` - **Function** Functions releated to this virtual host *(optional)*
  
  - `proxies` - **Object** Object for build http proxy, related to [`http-proxy`](https://github.com/nodejitsu/node-http-proxy) *(optional)*
