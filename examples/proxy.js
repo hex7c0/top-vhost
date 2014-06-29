@@ -55,21 +55,21 @@ child2.get('/admin',function(req,res) {
 
 // server starting
 father.use(vhost({
-    domain: 'api.pippo.com',
+    domain: 'http://api.pippo.com:3000',
     proxies: {
         target: 'http://127.0.0.1:3001',
         xfwd: true
     }
 }));
 father.use(vhost({
-    domain: '*.pippo.com',
+    domain: 'http://*.pippo.com:3000',
     proxies: {
         target: 'http://127.0.0.1:3002',
         xfwd: true
     }
 }));
 father.use(vhost({
-    domain: 'pippo.com',
+    domain: 'http://pippo.com:3000',
     proxies: {
         target: 'http://127.0.0.1:3003',
         xfwd: true
