@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.1.0
+ * @version 1.1.1
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -82,6 +82,7 @@ module.exports = function vhost(options) {
 
     var moved;
     if (Array.isArray(options.redirect) == true) {
+        var rdc = redirect;
         moved = options.redirect;
         for (var i = 0, ii = moved.length; i < ii; i++) {
             moved[i] = expression(moved[i]);
@@ -92,10 +93,7 @@ module.exports = function vhost(options) {
         };
     }
 
-    if (options.framework) {
-        if (typeof (options.framework) != 'function') {
-            throw new Error('invalid "framework" argument');
-        }
+    if (options.framework && typeof (options.framework) == 'function') {
         var framework = options.framework;
     } else if (options.proxies && typeof (options.proxies) == 'object') {
         var proxy = require('http-proxy').createProxyServer(options.proxies);
@@ -105,15 +103,19 @@ module.exports = function vhost(options) {
                 var host = req.headers.host;
                 if (domain.test(host)) {
                     return proxy.web(req,res);
-                } else if (moved) {
-                    if (redirect(moved,res,host)) {
-                        return;
-                    }
+                } else if (moved && rdc(moved,res,host)) {
+                    return;
                 }
             } catch (TypeError) {
+                // !host
                 // pass
             }
-            return next();
+            try {
+                return next();
+            } catch (TypeError) {
+                // !next
+                return;
+            }
         };
     } else {
         throw new Error('"framework" or "proxies" are required');
@@ -125,14 +127,18 @@ module.exports = function vhost(options) {
             var host = req.headers.host;
             if (domain.test(host)) {
                 return framework(req,res,next);
-            } else if (moved) {
-                if (redirect(moved,res,host)) {
-                    return;
-                }
+            } else if (moved && rdc(moved,res,host)) {
+                return;
             }
         } catch (TypeError) {
+            // !host
             // pass
         }
-        return next();
+        try {
+            return next();
+        } catch (TypeError) {
+            // !next
+            return;
+        }
     };
 };

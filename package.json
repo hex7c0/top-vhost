@@ -1,6 +1,6 @@
 {
   "name": "top-vhost",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "top-down virtual host for nodejs",
   "main": "index.js",
   "repository": {
