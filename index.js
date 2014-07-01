@@ -76,6 +76,22 @@ function expression(url) {
     return new RegExp(url.replace(/\*/g,'([^\.]+)'),'i');
 }
 /**
+ * ending function
+ * 
+ * @function end
+ * @param {Function} next - next op
+ * @return
+ */
+function end(next) {
+
+    try {
+        return next();
+    } catch (TypeError) {
+        // !next
+        return;
+    }
+}
+/**
  * main
  * 
  * @function vhost
@@ -97,7 +113,7 @@ module.exports = function vhost(options) {
         }
         return function vhost(req,res,next) {
 
-            var data = JSON.parse(fs.readFileSync(file,'utf8'));;
+            var data = JSON.parse(fs.readFileSync(file,'utf8'));
             for (var i = 0, ii = data.length; i < ii; i++) {
                 var d = data[i];
                 var domain = exp(d.domain);
@@ -110,7 +126,7 @@ module.exports = function vhost(options) {
                 try {
                     var host = req.headers.host;
                 } catch (TypeError) {
-                    // !host
+                    return end(next);
                 }
                 if (domain.test(host)) {
                     return proxy.web(req,res);
@@ -118,19 +134,12 @@ module.exports = function vhost(options) {
                     return;
                 }
             }
-            data = null
-            try {
-                return next();
-            } catch (TypeError) {
-                // !next
-                return;
-            }
+            return end(next);
         };
     }
 
-    var domain;
-    if (options.domain) {
-        domain = options.domain;
+    var domain = options.domain;
+    if (domain) {
         if (domain.constructor.name == 'RegExp') {
             domain = domain.source;
         } else if (typeof (domain) != 'string') {
@@ -156,19 +165,14 @@ module.exports = function vhost(options) {
             try {
                 var host = req.headers.host;
             } catch (TypeError) {
-                // !host
+                return end(next);
             }
             if (domain.test(host)) {
                 return proxy.web(req,res);
             } else if (moved && rdc(moved,res,host)) {
                 return;
             }
-            try {
-                return next();
-            } catch (TypeError) {
-                // !next
-                return;
-            }
+            return end(next);
         };
     } else {
         throw new Error('"framework" or "proxies" are required');
@@ -180,18 +184,13 @@ module.exports = function vhost(options) {
         try {
             var host = req.headers.host;
         } catch (TypeError) {
-            // !host
+            return end(next);
         }
         if (domain.test(host)) {
             return framework(req,res,next);
         } else if (moved && rdc(moved,res,host)) {
             return;
         }
-        try {
-            return next();
-        } catch (TypeError) {
-            // !next
-            return;
-        }
+        return end(next);
     };
 };

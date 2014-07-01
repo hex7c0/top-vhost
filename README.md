@@ -35,7 +35,7 @@ father.listen(3000);
 
 ### vhost(options)
 
- - `file` - **String** Configuration file. Array of hosts *(default "disabled")*
+ - `file` - **String** Configuration file (only for Proxies). Array of hosts *(default "disabled")*
  - `domain` - **String | RegExp** Name or Regex of virtual host *(required if not `file`)*
  - `redirect` - **Array** Array of url that will be redirected to this domain *(default "disabled")*
  
