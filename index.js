@@ -111,6 +111,8 @@ module.exports = function vhost(options) {
         if (!fs.existsSync(file)) {
             throw new Error('"file" not exists');
         }
+        options = null;
+
         return function vhost(req,res,next) {
 
             var data = JSON.parse(fs.readFileSync(file,'utf8'));
@@ -159,6 +161,8 @@ module.exports = function vhost(options) {
         var framework = options.framework;
     } else if (options.proxies && typeof (options.proxies) == 'object') {
         var proxy = require('http-proxy').createProxyServer(options.proxies);
+        options = null;
+
         return function vhost(req,res,next) {
 
             var host;
@@ -177,6 +181,7 @@ module.exports = function vhost(options) {
     } else {
         throw new Error('"framework" or "proxies" are required');
     }
+    options = null;
 
     return function vhost(req,res,next) {
 
