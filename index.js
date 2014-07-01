@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.1.1
+ * @version 1.2.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -13,6 +13,24 @@
 /*
  * functions
  */
+/**
+ * http redirect builder
+ * 
+ * @function builder
+ * @param {Array} moved - url
+ * @param {String} domain - req.headers.host
+ * @return {Object}
+ */
+function builder(moved,domain) {
+
+    for (var i = 0, ii = moved.length; i < ii; i++) {
+        moved[i] = expression(moved[i]);
+    }
+    return {
+        reg: moved,
+        orig: domain,
+    };
+}
 /**
  * http redirect
  * 
@@ -68,29 +86,64 @@ function expression(url) {
 module.exports = function vhost(options) {
 
     var options = options || {};
-    var domain = options.domain;
-    if (domain) {
+    var rdc = redirect;
+    var exp = expression;
+
+    if (options.file) {
+        var file = require('path').resolve(options.file);
+        var fs = require('fs');
+        if (!fs.existsSync(file)) {
+            throw new Error('"file" not exists');
+        }
+        return function vhost(req,res,next) {
+
+            var data = JSON.parse(fs.readFileSync(file,'utf8'));;
+            for (var i = 0, ii = data.length; i < ii; i++) {
+                var d = data[i];
+                var domain = exp(d.domain);
+                var proxy = require('http-proxy').createProxyServer(d.proxies);
+                var moved;
+                if (d.redirect) {
+                    moved = builder(d.redirect,d.domain);
+                }
+                var host;
+                try {
+                    var host = req.headers.host;
+                } catch (TypeError) {
+                    // !host
+                }
+                if (domain.test(host)) {
+                    return proxy.web(req,res);
+                } else if (moved && rdc(moved,res,host)) {
+                    return;
+                }
+            }
+            data = null
+            try {
+                return next();
+            } catch (TypeError) {
+                // !next
+                return;
+            }
+        };
+    }
+
+    var domain;
+    if (options.domain) {
+        domain = options.domain;
         if (domain.constructor.name == 'RegExp') {
             domain = domain.source;
         } else if (typeof (domain) != 'string') {
             throw new Error('invalid "domain" argument');
         }
-        domain = expression(domain);
+        domain = exp(domain);
     } else {
         throw new Error('"domain" is required');
     }
 
     var moved;
     if (Array.isArray(options.redirect) == true) {
-        var rdc = redirect;
-        moved = options.redirect;
-        for (var i = 0, ii = moved.length; i < ii; i++) {
-            moved[i] = expression(moved[i]);
-        }
-        moved = {
-            reg: moved,
-            orig: options.domain,
-        };
+        moved = builder(options.redirect,options.domain);
     }
 
     if (options.framework && typeof (options.framework) == 'function') {
@@ -99,16 +152,16 @@ module.exports = function vhost(options) {
         var proxy = require('http-proxy').createProxyServer(options.proxies);
         return function vhost(req,res,next) {
 
+            var host;
             try {
                 var host = req.headers.host;
-                if (domain.test(host)) {
-                    return proxy.web(req,res);
-                } else if (moved && rdc(moved,res,host)) {
-                    return;
-                }
             } catch (TypeError) {
                 // !host
-                // pass
+            }
+            if (domain.test(host)) {
+                return proxy.web(req,res);
+            } else if (moved && rdc(moved,res,host)) {
+                return;
             }
             try {
                 return next();
@@ -123,16 +176,16 @@ module.exports = function vhost(options) {
 
     return function vhost(req,res,next) {
 
+        var host;
         try {
             var host = req.headers.host;
-            if (domain.test(host)) {
-                return framework(req,res,next);
-            } else if (moved && rdc(moved,res,host)) {
-                return;
-            }
         } catch (TypeError) {
             // !host
-            // pass
+        }
+        if (domain.test(host)) {
+            return framework(req,res,next);
+        } else if (moved && rdc(moved,res,host)) {
+            return;
         }
         try {
             return next();
