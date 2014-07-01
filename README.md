@@ -35,8 +35,10 @@ father.listen(3000);
 
 ### vhost(options)
 
- - `domain` - **String | RegExp** Name or Regex of virtual host *(required)*
+ - `file` - **String** Configuration file. Array of hosts *(default "disabled")*
+ - `domain` - **String | RegExp** Name or Regex of virtual host *(required if not `file`)*
  - `redirect` - **Array** Array of url that will be redirected to this domain *(default "disabled")*
+ 
  - `framework` - **Function** Functions releated to this virtual host *(optional)*
  
  - `proxies` - **Object** Object for build http proxy, related to [`http-proxy`](https://github.com/nodejitsu/node-http-proxy) *(optional)*
