@@ -1,6 +1,6 @@
 "use strict";
 /**
- * @file file example
+ * @file dynamic example
  * @module top-vhost
  * @package top-vhost
  * @subpackage examples
@@ -55,7 +55,7 @@ child2.get('/admin',function(req,res) {
 
 // server starting
 father.use(vhost({
-    file: 'file.json'
+    dynamic: 'dynamic.json'
 }));
 father.listen(3000);
 console.log('starting server on port 3000');

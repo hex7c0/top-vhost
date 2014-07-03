@@ -1,3 +1,11 @@
+v1.3.0 / 2014-07-03
+==================
+
+  * Rename `file` option to `dynamic`
+  * Add `static` option
+  * Redirect even url
+  * Subdivision in functions
+
 v1.2.0 / 2014-07-01
 ==================
 
