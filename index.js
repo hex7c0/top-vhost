@@ -43,18 +43,19 @@ function builder(moved,domain) {
  * @param {Object} moved - regex url
  * @param {Object} res - response
  * @param {String} host - req.headers.host
+ * @param {String} url - req.url
  * @return {Boolean}
  */
-function redirect(moved,res,host) {
+function redirect(moved,res,host,url) {
 
     var reg = moved.reg;
     for (var i = 0, ii = reg.length; i < ii; i++) {
         if (reg[i].test(host)) {
             try {
-                res.redirect(301,moved.orig);
+                res.redirect(301,moved.orig + url);
             } catch (TypeError) {
                 res.statusCode = 301;
-                res.setHeader('location:',moved.orig);
+                res.setHeader('location:',moved.orig + url);
             }
             res.end();
             return true;
@@ -106,7 +107,7 @@ function end(next) {
 function dynamics(file) {
 
     if (!fs.existsSync(file)) {
-        throw new Error('"file" not exists');
+        throw new Error(file + ' not exists');
     }
     var file = require('path').resolve(file);
     var rdc = redirect, exp = expression;
@@ -128,14 +129,14 @@ function dynamics(file) {
                 var host = req.headers.host;
                 if (domain.test(host)) {
                     return proxy.web(req,res);
-                } else if (moved && rdc(moved,res,host)) {
+                } else if (moved && rdc(moved,res,host,req.url)) {
                     return;
                 }
             } catch (TypeError) {
                 break;
             }
-            return end(next);
         };
+        return end(next);
     };
 }
 /**
@@ -149,7 +150,7 @@ function dynamics(file) {
 function statics(file,obj) {
 
     if (!fs.existsSync(file)) {
-        throw new Error('"file" not exists');
+        throw new Error(file + ' not exists');
     }
     var d = require(require('path').resolve(file));
     var domain, moved;
@@ -170,7 +171,11 @@ function statics(file,obj) {
     if (obj.moved) {
         moved = obj.moved;
     } else if (Array.isArray(d.redirect) == true) {
-        moved = builder(d.redirect,d.domain);
+        if (obj.orig) {
+            moved = builder(d.redirect,obj.orig);
+        } else if (d.domain) {
+            moved = builder(d.redirect,d.domain);
+        }
     }
 
     if (obj.framework) {
@@ -205,7 +210,7 @@ function proxies(domain,moved,proxy) {
             var host = req.headers.host;
             if (domain.test(host)) {
                 return proxy.web(req,res);
-            } else if (moved && redirect(moved,res,host)) {
+            } else if (moved && rdc(moved,res,host,req.url)) {
                 return;
             }
         } catch (TypeError) {
@@ -235,7 +240,7 @@ function framework(domain,moved,fw) {
             var host = req.headers.host;
             if (domain.test(host)) {
                 return fw(req,res,next);
-            } else if (moved && rdc(moved,res,host)) {
+            } else if (moved && rdc(moved,res,host,req.url)) {
                 return;
             }
         } catch (TypeError) {
@@ -272,9 +277,7 @@ module.exports = function vhost(options) {
         next.proxies = proxy;
     }
 
-    if (options.dynamic) {
-        return dynamics(String(options.dynamic));
-    } else if (domain = options.domain) {
+    if (domain = options.domain) {
         if (domain.constructor.name == 'RegExp') {
             domain = domain.source;
         } else if (typeof (domain) != 'string') {
@@ -282,6 +285,11 @@ module.exports = function vhost(options) {
         }
         domain = expression(domain);
         next.domain = domain;
+        next.orig = options.domain;
+    } else if (options.dynamic) {
+        return dynamics(String(options.dynamic));
+    } else if (options.static) {
+        // pass
     } else {
         throw new Error('"domain" is required');
     }
