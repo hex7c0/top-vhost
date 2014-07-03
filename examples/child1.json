@@ -1,0 +1,7 @@
+{
+    "domain": "http://*.pippo.com:3000",
+    "proxies": {
+            "target": "http://127.0.0.1:3002",
+            "xfwd": true
+    }
+}
