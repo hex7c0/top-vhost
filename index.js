@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.3.0
+ * @version 1.3.1
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -264,6 +264,9 @@ module.exports = function vhost(options) {
     var fw, proxy;
     var next = Object.create(null);
 
+    if (options.file) {
+        console.error('top-vhost > "file" option is deprecated');
+    }
     if (Array.isArray(options.redirect) == true) {
         moved = builder(options.redirect,options.domain);
         next.moved = moved;
