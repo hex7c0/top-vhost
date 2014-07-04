@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.3.1
+ * @version 1.3.2
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -86,15 +86,16 @@ function expression(url) {
  * 
  * @function end
  * @param {Function} next - next op
- * @return
+ * @return {Boolean}
  */
 function end(next) {
 
     try {
-        return next();
+        next()
+        return false;
     } catch (TypeError) {
         // !next
-        return;
+        return false;
     }
 }
 /**
@@ -128,9 +129,10 @@ function dynamics(file) {
             try {
                 var host = req.headers.host;
                 if (domain.test(host)) {
-                    return proxy.web(req,res);
-                } else if (moved && rdc(moved,res,host,req.url)) {
-                    return;
+                    proxy.web(req,res);
+                    return true;
+                } else if (moved) {
+                    return rdc(moved,res,host,req.url);
                 }
             } catch (TypeError) {
                 break;
@@ -209,9 +211,10 @@ function proxies(domain,moved,proxy) {
         try {
             var host = req.headers.host;
             if (domain.test(host)) {
-                return proxy.web(req,res);
-            } else if (moved && rdc(moved,res,host,req.url)) {
-                return;
+                proxy.web(req,res);
+                return true;
+            } else if (moved) {
+                return rdc(moved,res,host,req.url);
             }
         } catch (TypeError) {
             // pass
@@ -239,9 +242,10 @@ function framework(domain,moved,fw) {
         try {
             var host = req.headers.host;
             if (domain.test(host)) {
-                return fw(req,res,next);
-            } else if (moved && rdc(moved,res,host,req.url)) {
-                return;
+                fw(req,res,next);
+                return true;
+            } else if (moved) {
+                return rdc(moved,res,host,req.url);
             }
         } catch (TypeError) {
             // pass
