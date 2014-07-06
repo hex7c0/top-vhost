@@ -72,7 +72,6 @@ father.use(vhost({
     domain: 'http://pippo.com:3000',
     proxies: {
         target: 'http://127.0.0.1:3003',
-        xfwd: true
     }
 }));
 father.listen(3000);

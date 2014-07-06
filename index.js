@@ -236,13 +236,13 @@ function dynamics(file) {
         var data = JSON.parse(fs.readFileSync(file,'utf8'));
         for (var i = 0, ii = data.length; i < ii; i++) {
             var d = data[i];
-            var domain = exp(d.domain);
-            var proxy = require('http-proxy').createProxyServer(d.proxies);
             var moved;
-            if (d.redirect) {
-                moved = builder(d.redirect,d.domain);
-            }
             try {
+                var domain = exp(d.domain.source || d.domain);
+                var proxy = require('http-proxy').createProxyServer(d.proxies);
+                if (d.redirect) {
+                    moved = builder(d.redirect,d.domain.source || d.domain);
+                }
                 var host = req.headers.host;
                 if (domain.test(host)) {
                     proxy.web(req,res);
@@ -251,7 +251,7 @@ function dynamics(file) {
                     return true;
                 }
             } catch (TypeError) {
-                break;
+                // pass
             }
         };
         return end(next);
@@ -418,7 +418,6 @@ module.exports = function vhost(options) {
             });
         }
         if (options.stripWWW) {
-            next.stripWWW = true;
             if (typeof (moved) != 'object') {
                 moved = {
                     reg: [/^www./],
