@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.3.2
+ * @version 1.4.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -14,6 +14,7 @@
  * initialize module
  */
 var fs = require('fs');
+var redirect = redirect301;
 
 /*
  * common functions
@@ -38,16 +39,17 @@ function builder(moved,domain) {
 }
 
 /**
- * http redirect
+ * http permanently redirect status code
  * 
- * @function redirect
- * @param {Object} moved - regex url
+ * @function redirect301
+ * @param {Object} req - request
  * @param {Object} res - response
+ * @param {Object} moved - regex url
  * @param {String} host - req.headers.host
  * @param {String} url - req.url
  * @return {Boolean}
  */
-function redirect(moved,res,host,url) {
+function redirect301(req,res,moved,host,url) {
 
     var reg = moved.reg;
     for (var i = 0, ii = reg.length; i < ii; i++) {
@@ -56,7 +58,36 @@ function redirect(moved,res,host,url) {
                 res.redirect(301,moved.orig + url);
             } catch (TypeError) {
                 res.statusCode = 301;
-                res.setHeader('location:',moved.orig + url);
+                res.setHeader('Location:',moved.orig + url);
+            }
+            res.end();
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * http temporary redirect status code
+ * 
+ * @function redirect307
+ * @param {Object} req - request
+ * @param {Object} res - response
+ * @param {Object} moved - regex url
+ * @param {String} host - req.headers.host
+ * @param {String} url - req.url
+ * @return {Boolean}
+ */
+function redirect307(req,res,moved,host,url) {
+
+    var reg = moved.reg;
+    for (var i = 0, ii = reg.length; i < ii; i++) {
+        if (reg[i].test(host)) {
+            try {
+                res.redirect(307,moved.orig + url);
+            } catch (TypeError) {
+                res.statusCode = 307;
+                res.setHeader('Location:',moved.orig + url);
             }
             res.end();
             return true;
@@ -109,6 +140,23 @@ function end(next) {
 /**
  * proxy work
  * 
+ * @function strip
+ * @param {Array} moved - http(s) redirect
+ * @return {Function}
+ */
+function strip(moved) {
+
+    var moved = moved;
+    var rdc = redirect
+    return function vhost(req,res,next) {
+
+        return rdc(null,res,moved,'*',req.url);
+    };
+}
+
+/**
+ * proxy work
+ * 
  * @function proxies
  * @param {RegExp} domain - vhost
  * @param {Array} moved - array of 301
@@ -126,8 +174,8 @@ function proxies(domain,moved,proxy) {
             if (domain.test(host)) {
                 proxy.web(req,res);
                 return true;
-            } else if (moved) {
-                return rdc(moved,res,host,req.url);
+            } else if (moved && rdc(null,res,moved,host,req.url)) {
+                return true;
             }
         } catch (TypeError) {
             // pass
@@ -157,8 +205,8 @@ function framework(domain,moved,fw) {
             if (domain.test(host)) {
                 fw(req,res,next);
                 return true;
-            } else if (moved) {
-                return rdc(moved,res,host,req.url);
+            } else if (moved && rdc(null,res,moved,host,req.url)) {
+                return true;
             }
         } catch (TypeError) {
             // pass
@@ -199,8 +247,8 @@ function dynamics(file) {
                 if (domain.test(host)) {
                     proxy.web(req,res);
                     return true;
-                } else if (moved) {
-                    return rdc(moved,res,host,req.url);
+                } else if (moved && rdc(null,res,moved,host,req.url)) {
+                    return true;
                 }
             } catch (TypeError) {
                 break;
@@ -273,17 +321,27 @@ module.exports = function vhost(options) {
 
     var options = options || {};
     var domain, fw, proxy;
-    var moved;
+    var moved, temp;
     var next = Object.create(null);
 
+    // single
     if (options.file) {
         console.error('top-vhost > "file" option is deprecated');
     }
     if (Array.isArray(options.redirect) == true) {
-        moved = builder(options.redirect,options.domain);
+        moved = builder(options.redirect,options.domain.source
+                || options.domain);
         next.moved = moved;
     }
+    if (temp = Number(options.redirectStatus)) {
+        if (temp == 301) {
+            redirect = redirect301;
+        } else if (temp == 307) {
+            redirect = redirect307;
+        }
+    }
 
+    // exclusive
     if (options.framework && typeof (options.framework) == 'function') {
         fw = options.framework;
         next.framework = fw;
@@ -300,13 +358,36 @@ module.exports = function vhost(options) {
         }
         domain = expression(domain);
         next.domain = domain;
-        next.orig = options.domain;
+        next.orig = options.domain.source || options.domain;
     } else if (options.dynamic) {
         return dynamics(String(options.dynamic));
     } else if (options.static) {
         // pass
     } else {
         throw new Error('"domain" is required');
+    }
+
+    if (options.stripWWW || options.stripHTTP || options.stripHTTPS) {
+        if (typeof (moved) != 'object') {
+            moved = {
+                reg: [],
+                orig: domain,
+            };
+        }
+        if (options.stripWWW) {
+            moved.reg.push(/^www./);
+        }
+        if (options.stripHTTP) {
+            temp = options.domain.source || options.domain;
+            moved.orig = temp.replace(/http:\/\//,'https://');
+            moved.reg = [/./];
+            return strip(moved);
+        } else if (options.stripHTTPS) {
+            temp = options.domain.source || options.domain;
+            moved.orig = temp.replace(/https:\/\//,'http://');
+            moved.reg = [/./];
+            return strip(moved);
+        }
     }
 
     // return
