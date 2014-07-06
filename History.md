@@ -1,4 +1,13 @@
-v1.3.2 / 2014-07-03
+v1.4.0 / 2014-07-06
+==================
+
+  * Add `redirectStatus` option
+  * Add `stripWWW` option
+  * Add `stripHTTP` option
+  * Add `stripHTTPS` option
+  * Small fixies
+
+v1.3.2 / 2014-07-04
 ==================
 
   * Return Boolean
