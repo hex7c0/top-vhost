@@ -297,10 +297,13 @@ function statics(file,obj) {
         }
     }
 
+    // return
     if (obj.framework) {
         return framework(domain,moved,obj.framework);
     } else if (obj.proxies) {
         return proxies(domain,moved,obj.proxies);
+    } else if (d.dynamic) {
+        return dynamics(String(d.dynamic));
     } else if (d.proxies && typeof (d.proxies) == 'object') {
         var proxy = require('http-proxy').createProxyServer(d.proxies);
         return proxies(domain,moved,proxy);
@@ -339,6 +342,7 @@ module.exports = function vhost(options) {
         } else if (temp == 307) {
             redirect = redirect307;
         }
+        next.redirectStatus = temp;
     }
 
     // exclusive
@@ -350,6 +354,7 @@ module.exports = function vhost(options) {
         next.proxies = proxy;
     }
 
+    // domain
     if (domain = options.domain) {
         if (domain.constructor.name == 'RegExp') {
             domain = domain.source;
@@ -359,14 +364,13 @@ module.exports = function vhost(options) {
         domain = expression(domain);
         next.domain = domain;
         next.orig = options.domain.source || options.domain;
-    } else if (options.dynamic) {
-        return dynamics(String(options.dynamic));
-    } else if (options.static) {
+    } else if (options.dynamic || options.static) {
         // pass
     } else {
         throw new Error('"domain" is required');
     }
 
+    // extra
     if (options.stripWWW || options.stripHTTP || options.stripHTTPS) {
         if (typeof (moved) != 'object') {
             moved = {
@@ -374,24 +378,25 @@ module.exports = function vhost(options) {
                 orig: domain,
             };
         }
-        if (options.stripWWW) {
-            moved.reg.push(/^www./);
-        }
+        temp = options.domain.source || options.domain;
         if (options.stripHTTP) {
-            temp = options.domain.source || options.domain;
             moved.orig = temp.replace(/http:\/\//,'https://');
             moved.reg = [/./];
             return strip(moved);
         } else if (options.stripHTTPS) {
-            temp = options.domain.source || options.domain;
             moved.orig = temp.replace(/https:\/\//,'http://');
             moved.reg = [/./];
             return strip(moved);
+        } else if (options.stripWWW) {
+            moved.reg.push(/^www./);
+            next.stripWWW = true;
         }
     }
 
     // return
-    if (options.static) {
+    if (options.dynamic) {
+        return dynamics(String(options.dynamic));
+    } else if (options.static) {
         return statics(String(options.static),next);
     } else if (fw) {
         return framework(domain,moved,fw);
