@@ -272,8 +272,10 @@ function statics(file,obj) {
         throw new Error(file + ' not exists');
     }
     var d = require(require('path').resolve(file));
-    var domain, moved;
+    var domain, proxy;
+    var moved, temp;
 
+    // domain
     if (obj.domain) {
         domain = obj.domain;
     } else if (domain = d.domain) {
@@ -283,29 +285,61 @@ function statics(file,obj) {
             throw new Error('invalid "domain" argument');
         }
         domain = expression(domain);
+    } else if (d.dynamic) {
+        // pass
     } else {
         throw new Error('"domain" is required');
     }
 
+    // single
     if (obj.moved) {
         moved = obj.moved;
     } else if (Array.isArray(d.redirect) == true) {
-        if (obj.orig) {
-            moved = builder(d.redirect,obj.orig);
-        } else if (d.domain) {
-            moved = builder(d.redirect,d.domain);
+        moved = builder(d.redirect,obj.orig || d.domain.source || d.domain);
+    }
+    if (temp = Number(d.redirectStatus)) {
+        if (temp == 301) {
+            redirect = redirect301;
+        } else if (temp == 307) {
+            redirect = redirect307;
+        }
+    }
+
+    // extra
+    if (d.stripWWW || d.stripHTTP || d.stripHTTPS) {
+        temp = obj.orig || d.domain.source || d.domain;
+        if (d.stripHTTP) {
+            return strip({
+                reg: [/./],
+                orig: temp.replace(/http:\/\//,'https://'),
+            });
+        } else if (d.stripHTTPS) {
+            return strip({
+                reg: [/./],
+                orig: temp.replace(/https:\/\//,'http://'),
+            });
+        }
+        if (d.stripWWW) {
+            if (typeof (moved) != 'object') {
+                moved = {
+                    reg: [/^www./],
+                    orig: domain,
+                };
+            } else {
+                moved.reg.push(/^www./);
+            }
         }
     }
 
     // return
-    if (obj.framework) {
+    if (d.dynamic) {
+        return dynamics(String(d.dynamic));
+    } else if (obj.framework) {
         return framework(domain,moved,obj.framework);
     } else if (obj.proxies) {
         return proxies(domain,moved,obj.proxies);
-    } else if (d.dynamic) {
-        return dynamics(String(d.dynamic));
     } else if (d.proxies && typeof (d.proxies) == 'object') {
-        var proxy = require('http-proxy').createProxyServer(d.proxies);
+        proxy = require('http-proxy').createProxyServer(d.proxies);
         return proxies(domain,moved,proxy);
     } else {
         throw new Error('"framework" or "proxies" are required');
@@ -326,24 +360,6 @@ module.exports = function vhost(options) {
     var domain, fw, proxy;
     var moved, temp;
     var next = Object.create(null);
-
-    // single
-    if (options.file) {
-        console.error('top-vhost > "file" option is deprecated');
-    }
-    if (Array.isArray(options.redirect) == true) {
-        moved = builder(options.redirect,options.domain.source
-                || options.domain);
-        next.moved = moved;
-    }
-    if (temp = Number(options.redirectStatus)) {
-        if (temp == 301) {
-            redirect = redirect301;
-        } else if (temp == 307) {
-            redirect = redirect307;
-        }
-        next.redirectStatus = temp;
-    }
 
     // exclusive
     if (options.framework && typeof (options.framework) == 'function') {
@@ -370,26 +386,47 @@ module.exports = function vhost(options) {
         throw new Error('"domain" is required');
     }
 
+    // single
+    if (options.file) {
+        console.error('top-vhost > "file" option is deprecated');
+    }
+    if (Array.isArray(options.redirect) == true) {
+        moved = builder(options.redirect,options.domain.source
+                || options.domain);
+        next.moved = moved;
+    }
+    if (temp = Number(options.redirectStatus)) {
+        if (temp == 301) {
+            redirect = redirect301;
+        } else if (temp == 307) {
+            redirect = redirect307;
+        }
+    }
+
     // extra
     if (options.stripWWW || options.stripHTTP || options.stripHTTPS) {
-        if (typeof (moved) != 'object') {
-            moved = {
-                reg: [],
-                orig: domain,
-            };
-        }
         temp = options.domain.source || options.domain;
         if (options.stripHTTP) {
-            moved.orig = temp.replace(/http:\/\//,'https://');
-            moved.reg = [/./];
-            return strip(moved);
+            return strip({
+                reg: [/./],
+                orig: temp.replace(/http:\/\//,'https://'),
+            });
         } else if (options.stripHTTPS) {
-            moved.orig = temp.replace(/https:\/\//,'http://');
-            moved.reg = [/./];
-            return strip(moved);
-        } else if (options.stripWWW) {
-            moved.reg.push(/^www./);
+            return strip({
+                reg: [/./],
+                orig: temp.replace(/https:\/\//,'http://'),
+            });
+        }
+        if (options.stripWWW) {
             next.stripWWW = true;
+            if (typeof (moved) != 'object') {
+                moved = {
+                    reg: [/^www./],
+                    orig: domain,
+                };
+            } else {
+                moved.reg.push(/^www./);
+            }
         }
     }
 
