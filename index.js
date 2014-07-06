@@ -16,7 +16,7 @@
 var fs = require('fs');
 
 /*
- * functions
+ * common functions
  */
 /**
  * http redirect builder
@@ -36,6 +36,7 @@ function builder(moved,domain) {
         orig: domain,
     };
 }
+
 /**
  * http redirect
  * 
@@ -63,6 +64,7 @@ function redirect(moved,res,host,url) {
     }
     return false;
 }
+
 /**
  * regex builder
  * 
@@ -72,15 +74,17 @@ function redirect(moved,res,host,url) {
  */
 function expression(url) {
 
-    url = url.replace(/http([s]*):\/\//,'');
+    url = url.replace(/http([s]{0,1}):\/\//,'').replace(/\*/g,'([^\.]+)');
+    // add starting index
     if (url[0] != '^') {
         url = '^' + url;
     }
-    if (url[url.length - 1] == '$') {
-        url = url.slice(0,url.length - 1);
-    }
-    return new RegExp(url.replace(/\*/g,'([^\.]+)'),'i');
+    // if (url[url.length - 1] == '$') {
+    // url = url.slice(0,url.length - 1);
+    // }
+    return new RegExp(url,'i');
 }
+
 /**
  * ending function
  * 
@@ -92,12 +96,77 @@ function end(next) {
 
     try {
         next()
-        return false;
     } catch (TypeError) {
-        // !next
-        return false;
+        // pass
     }
+    return false;
 }
+
+/*
+ * return functions
+ */
+
+/**
+ * proxy work
+ * 
+ * @function proxies
+ * @param {RegExp} domain - vhost
+ * @param {Array} moved - array of 301
+ * @param {Object} proxy - proxy
+ * @return {Function}
+ */
+function proxies(domain,moved,proxy) {
+
+    var domain = domain, moved = moved;
+    var rdc = redirect, proxy = proxy;
+    return function vhost(req,res,next) {
+
+        try {
+            var host = req.headers.host;
+            if (domain.test(host)) {
+                proxy.web(req,res);
+                return true;
+            } else if (moved) {
+                return rdc(moved,res,host,req.url);
+            }
+        } catch (TypeError) {
+            // pass
+        }
+        return end(next);
+    };
+}
+
+/**
+ * framework work
+ * 
+ * @function framework
+ * @param {RegExp} domain - vhost
+ * @param {Array} moved - array of 301
+ * @param {Object} fs - framework
+ * @return {Function}
+ */
+function framework(domain,moved,fw) {
+
+    var domain = domain, moved = moved;
+    var rdc = redirect, fw = fw;
+
+    return function vhost(req,res,next) {
+
+        try {
+            var host = req.headers.host;
+            if (domain.test(host)) {
+                fw(req,res,next);
+                return true;
+            } else if (moved) {
+                return rdc(moved,res,host,req.url);
+            }
+        } catch (TypeError) {
+            // pass
+        }
+        return end(next);
+    };
+}
+
 /**
  * dynamic file
  * 
@@ -125,7 +194,6 @@ function dynamics(file) {
             if (d.redirect) {
                 moved = builder(d.redirect,d.domain);
             }
-            var host;
             try {
                 var host = req.headers.host;
                 if (domain.test(host)) {
@@ -141,6 +209,7 @@ function dynamics(file) {
         return end(next);
     };
 }
+
 /**
  * statics file
  * 
@@ -191,68 +260,7 @@ function statics(file,obj) {
         throw new Error('"framework" or "proxies" are required');
     }
 }
-/**
- * proxy work
- * 
- * @function proxies
- * @param {RegExp} domain - vhost
- * @param {Array} moved - array of 301
- * @param {Object} proxy - proxy
- * @return {Function}
- */
-function proxies(domain,moved,proxy) {
 
-    var domain = domain, moved = moved;
-    var rdc = redirect, proxy = proxy;
-
-    return function vhost(req,res,next) {
-
-        var host;
-        try {
-            var host = req.headers.host;
-            if (domain.test(host)) {
-                proxy.web(req,res);
-                return true;
-            } else if (moved) {
-                return rdc(moved,res,host,req.url);
-            }
-        } catch (TypeError) {
-            // pass
-        }
-        return end(next);
-    };
-}
-/**
- * framework work
- * 
- * @function framework
- * @param {RegExp} domain - vhost
- * @param {Array} moved - array of 301
- * @param {Object} fs - framework
- * @return {Function}
- */
-function framework(domain,moved,fw) {
-
-    var domain = domain, moved = moved;
-    var rdc = redirect, fw = fw;
-
-    return function vhost(req,res,next) {
-
-        var host;
-        try {
-            var host = req.headers.host;
-            if (domain.test(host)) {
-                fw(req,res,next);
-                return true;
-            } else if (moved) {
-                return rdc(moved,res,host,req.url);
-            }
-        } catch (TypeError) {
-            // pass
-        }
-        return end(next);
-    };
-}
 /**
  * main
  * 
@@ -264,8 +272,8 @@ function framework(domain,moved,fw) {
 module.exports = function vhost(options) {
 
     var options = options || {};
-    var domain, moved;
-    var fw, proxy;
+    var domain, fw, proxy;
+    var moved;
     var next = Object.create(null);
 
     if (options.file) {
@@ -301,6 +309,7 @@ module.exports = function vhost(options) {
         throw new Error('"domain" is required');
     }
 
+    // return
     if (options.static) {
         return statics(String(options.static),next);
     } else if (fw) {
