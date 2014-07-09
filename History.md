@@ -1,3 +1,9 @@
+v1.5.0 / 2014-07-09
+==================
+
+  * Improve loop performance
+  * try-catch responsibility of the user
+
 v1.4.0 / 2014-07-06
 ==================
 

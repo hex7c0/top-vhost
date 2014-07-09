@@ -1,6 +1,7 @@
 #top-vhost [![Build Status](https://travis-ci.org/hex7c0/top-vhost.svg?branch=master)](https://travis-ci.org/hex7c0/top-vhost) [![NPM version](https://badge.fury.io/js/top-vhost.svg)](http://badge.fury.io/js/top-vhost)
 
 top-down virtual host for [nodejs](http://nodejs.org/). Optional, you can set this module like a proxy or a redirect.
+"try-catch" responsibility of the user for loop performance.
 
 ## Installation
 
