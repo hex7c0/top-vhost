@@ -174,7 +174,7 @@ function proxies(domain,moved,proxy) {
             if (domainC.test(host)) {
                 proxyC.web(req,res);
                 return true;
-            } else if (movedC && rdc(null,res,movedC,host,req.url)) {
+            } else if (rdc(null,res,movedC,host,req.url)) {
                 return true;
             } else {
                 next();
@@ -216,7 +216,7 @@ function framework(domain,moved,fw) {
             if (domainC.test(host)) {
                 fwC(req,res);
                 return true;
-            } else if (movedC && rdc(null,res,movedC,host,req.url)) {
+            } else if (rdc(null,res,movedC,host,req.url)) {
                 return true;
             } else {
                 next();
@@ -266,11 +266,14 @@ function dynamics(file) {
             var proxy = require('http-proxy').createProxyServer(d.proxies);
             if (d.redirect) {
                 moved = builder(d.redirect,d.domain.source || d.domain);
-            }
-            if (domain.test(host)) {
+                if (domain.test(host)) {
+                    proxy.web(req,res);
+                    return true;
+                } else if (rdc(null,res,moved,host,req.url)) {
+                    return true;
+                }
+            } else if (domain.test(host)) {
                 proxy.web(req,res);
-                return true;
-            } else if (moved && rdc(null,res,moved,host,req.url)) {
                 return true;
             }
         };
