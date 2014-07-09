@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.4.0
+ * @version 1.5.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -13,7 +13,7 @@
 /*
  * initialize module
  */
-var fs = require('fs');
+var fs;
 var redirect = redirect301;
 
 /*
@@ -165,23 +165,35 @@ function strip(moved) {
  */
 function proxies(domain,moved,proxy) {
 
-    var domain = domain, moved = moved;
-    var rdc = redirect, proxy = proxy;
-    return function vhost(req,res,next) {
+    var domainC = domain, proxyC = proxy;
+    if (moved) {
+        var movedC = moved, rdc = redirect;
+        return function vhost(req,res,next) {
 
-        try {
             var host = req.headers.host;
-            if (domain.test(host)) {
-                proxy.web(req,res);
+            if (domainC.test(host)) {
+                proxyC.web(req,res);
                 return true;
-            } else if (moved && rdc(null,res,moved,host,req.url)) {
+            } else if (movedC && rdc(null,res,movedC,host,req.url)) {
                 return true;
+            } else {
+                next();
+                return false;
             }
-        } catch (TypeError) {
-            // pass
-        }
-        return end(next);
-    };
+        };
+    } else {
+        return function vhost(req,res,next) {
+
+            var host = req.headers.host;
+            if (domainC.test(host)) {
+                proxyC.web(req,res);
+                return true;
+            } else {
+                next();
+                return false;
+            }
+        };
+    }
 }
 
 /**
@@ -190,29 +202,40 @@ function proxies(domain,moved,proxy) {
  * @function framework
  * @param {RegExp} domain - vhost
  * @param {Array} moved - array of 301
- * @param {Object} fs - framework
+ * @param {Object} fw - framework
  * @return {Function}
  */
 function framework(domain,moved,fw) {
 
-    var domain = domain, moved = moved;
-    var rdc = redirect, fw = fw;
+    var domainC = domain, fwC = fw;
+    if (moved) {
+        var movedC = moved, rdc = redirect;
+        return function vhost(req,res,next) {
 
-    return function vhost(req,res,next) {
-
-        try {
             var host = req.headers.host;
-            if (domain.test(host)) {
-                fw(req,res,next);
+            if (domainC.test(host)) {
+                fwC(req,res);
                 return true;
-            } else if (moved && rdc(null,res,moved,host,req.url)) {
+            } else if (movedC && rdc(null,res,movedC,host,req.url)) {
                 return true;
+            } else {
+                next();
+                return false;
             }
-        } catch (TypeError) {
-            // pass
-        }
-        return end(next);
-    };
+        };
+    } else {
+        return function vhost(req,res,next) {
+
+            var host = req.headers.host;
+            if (domainC.test(host)) {
+                fwC(req,res);
+                return true;
+            } else {
+                next();
+                return false;
+            }
+        };
+    }
 }
 
 /**
@@ -232,29 +255,27 @@ function dynamics(file) {
 
     return function vhost(req,res,next) {
 
+        var host = req.headers.host;
+
         // file refresh; instead require(), that use cache
         var data = JSON.parse(fs.readFileSync(file,'utf8'));
         for (var i = 0, ii = data.length; i < ii; i++) {
-            var d = data[i];
             var moved;
-            try {
-                var domain = exp(d.domain.source || d.domain);
-                var proxy = require('http-proxy').createProxyServer(d.proxies);
-                if (d.redirect) {
-                    moved = builder(d.redirect,d.domain.source || d.domain);
-                }
-                var host = req.headers.host;
-                if (domain.test(host)) {
-                    proxy.web(req,res);
-                    return true;
-                } else if (moved && rdc(null,res,moved,host,req.url)) {
-                    return true;
-                }
-            } catch (TypeError) {
-                // pass
+            var d = data[i];
+            var domain = exp(d.domain.source || d.domain);
+            var proxy = require('http-proxy').createProxyServer(d.proxies);
+            if (d.redirect) {
+                moved = builder(d.redirect,d.domain.source || d.domain);
+            }
+            if (domain.test(host)) {
+                proxy.web(req,res);
+                return true;
+            } else if (moved && rdc(null,res,moved,host,req.url)) {
+                return true;
             }
         };
-        return end(next);
+        next();
+        return false;
     };
 }
 
@@ -381,7 +402,7 @@ module.exports = function vhost(options) {
         next.domain = domain;
         next.orig = options.domain.source || options.domain;
     } else if (options.dynamic || options.static) {
-        // pass
+        fs = require('fs');
     } else {
         throw new Error('"domain" is required');
     }
