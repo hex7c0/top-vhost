@@ -43,9 +43,7 @@ father.listen(3000);
  - `stripWWW` - **Boolean** Stripe all "www." url *(default "disabled")*
  - `stripHTTP` - **Boolean** Redirect all "http://" to "https://" url *(default "disabled")*
  - `stripHTTPS` - **Boolean** Redirect all "https://" to "http://" url *(default "disabled")*
- 
  - `framework` - **Function** Functions releated to this virtual host *(optional)*
- 
  - `proxies` - **Object** Object for build http proxy, related to [`http-proxy`](https://github.com/nodejitsu/node-http-proxy) *(optional)*
 
 releated to https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy.js#L34-L51
