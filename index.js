@@ -13,8 +13,8 @@
 /*
  * initialize module
  */
-var fs;
 var redirect = redirect_body(301);
+var insensitive;
 
 /*
  * common functions
@@ -92,7 +92,7 @@ function expression(url) {
     // if (url[url.length - 1] == '$') {
     // url = url.slice(0,url.length - 1);
     // }
-    return new RegExp(url);
+    return new RegExp(url,insensitive)
 }
 
 /**
@@ -218,7 +218,7 @@ function dynamics(file) {
 
     var rdc = redirect, exp = expression;
     var file = require('path').resolve(file);
-    if (!fs.existsSync(file)) {
+    if (!require('fs').existsSync(file)) {
         throw new Error(file + ' not exists');
     }
 
@@ -226,10 +226,13 @@ function dynamics(file) {
 
         var host = req.headers.host;
         // file refresh; instead require(), that use cache
-        var data = JSON.parse(fs.readFileSync(file,'utf8'));
+        var data = JSON.parse(require('fs').readFileSync(file,'utf8'));
         for (var i = 0, ii = data.length; i < ii; i++) {
             var moved;
             var d = data[i];
+            if (Boolean(d.insensitive)) {
+                insensitive = 'i';
+            }
             var domain = exp(d.domain.source || d.domain);
             var proxy = require('http-proxy').createProxyServer(d.proxies);
             if (d.redirect) {
@@ -260,7 +263,7 @@ function dynamics(file) {
 function statics(file,obj) {
 
     var file = require('path').resolve(file);
-    if (!fs.existsSync(file)) {
+    if (!require('fs').existsSync(file)) {
         throw new Error(file + ' not exists');
     }
     var d = require(file);
@@ -268,6 +271,9 @@ function statics(file,obj) {
     var moved, temp;
 
     // domain
+    if (Boolean(d.insensitive)) {
+        insensitive = 'i';
+    }
     if (obj.domain) {
         domain = obj.domain;
     } else if (domain = d.domain) {
@@ -359,6 +365,9 @@ module.exports = function vhost(options) {
     }
 
     // domain
+    if (Boolean(options.insensitive)) {
+        insensitive = 'i';
+    }
     if (domain = options.domain) {
         if (domain.constructor.name == 'RegExp') {
             domain = domain.source;
@@ -369,7 +378,7 @@ module.exports = function vhost(options) {
         next.domain = domain;
         next.orig = options.domain.source || options.domain;
     } else if (options.dynamic || options.static) {
-        fs = require('fs');
+        // pass
     } else {
         throw new Error('"domain" is required');
     }
