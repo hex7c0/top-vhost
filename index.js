@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.5.0
+ * @version 1.5.1
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -42,24 +42,19 @@ function builder(moved,domain) {
  * http permanently redirect status code
  * 
  * @function redirect301
- * @param {Object} req - request
  * @param {Object} res - response
  * @param {Object} moved - regex url
  * @param {String} host - req.headers.host
  * @param {String} url - req.url
  * @return {Boolean}
  */
-function redirect301(req,res,moved,host,url) {
+function redirect301(res,moved,host,url) {
 
     var reg = moved.reg;
     for (var i = 0, ii = reg.length; i < ii; i++) {
         if (reg[i].test(host)) {
-            try {
-                res.redirect(301,moved.orig + url);
-            } catch (TypeError) {
-                res.statusCode = 301;
-                res.setHeader('Location:',moved.orig + url);
-            }
+            res.statusCode = 301;
+            res.setHeader('Location',moved.orig + url);
             res.end();
             return true;
         }
@@ -71,24 +66,19 @@ function redirect301(req,res,moved,host,url) {
  * http temporary redirect status code
  * 
  * @function redirect307
- * @param {Object} req - request
  * @param {Object} res - response
  * @param {Object} moved - regex url
  * @param {String} host - req.headers.host
  * @param {String} url - req.url
  * @return {Boolean}
  */
-function redirect307(req,res,moved,host,url) {
+function redirect307(res,moved,host,url) {
 
     var reg = moved.reg;
     for (var i = 0, ii = reg.length; i < ii; i++) {
         if (reg[i].test(host)) {
-            try {
-                res.redirect(307,moved.orig + url);
-            } catch (TypeError) {
-                res.statusCode = 307;
-                res.setHeader('Location:',moved.orig + url);
-            }
+            res.statusCode = 307;
+            res.setHeader('Location',moved.orig + url);
             res.end();
             return true;
         }
@@ -136,7 +126,6 @@ function end(next) {
 /*
  * return functions
  */
-
 /**
  * proxy work
  * 
@@ -146,11 +135,10 @@ function end(next) {
  */
 function strip(moved) {
 
-    var moved = moved;
-    var rdc = redirect
+    var mvd = moved, rdc = redirect;
     return function vhost(req,res,next) {
 
-        return rdc(null,res,moved,'*',req.url);
+        return rdc(res,mvd,'*',req.url);
     };
 }
 
@@ -167,19 +155,17 @@ function proxies(domain,moved,proxy) {
 
     var domainC = domain, proxyC = proxy;
     if (moved) {
-        var movedC = moved, rdc = redirect;
+        var mvd = moved, rdc = redirect;
         return function vhost(req,res,next) {
 
             var host = req.headers.host;
             if (domainC.test(host)) {
                 proxyC.web(req,res);
                 return true;
-            } else if (rdc(null,res,movedC,host,req.url)) {
+            } else if (rdc(res,mvd,host,req.url)) {
                 return true;
-            } else {
-                next();
-                return false;
             }
+            return end(next);
         };
     } else {
         return function vhost(req,res,next) {
@@ -188,10 +174,8 @@ function proxies(domain,moved,proxy) {
             if (domainC.test(host)) {
                 proxyC.web(req,res);
                 return true;
-            } else {
-                next();
-                return false;
             }
+            return end(next);
         };
     }
 }
@@ -209,19 +193,17 @@ function framework(domain,moved,fw) {
 
     var domainC = domain, fwC = fw;
     if (moved) {
-        var movedC = moved, rdc = redirect;
+        var mvd = moved, rdc = redirect;
         return function vhost(req,res,next) {
 
             var host = req.headers.host;
             if (domainC.test(host)) {
                 fwC(req,res);
                 return true;
-            } else if (rdc(null,res,movedC,host,req.url)) {
+            } else if (rdc(res,mvd,host,req.url)) {
                 return true;
-            } else {
-                next();
-                return false;
             }
+            return end(next);
         };
     } else {
         return function vhost(req,res,next) {
@@ -230,10 +212,8 @@ function framework(domain,moved,fw) {
             if (domainC.test(host)) {
                 fwC(req,res);
                 return true;
-            } else {
-                next();
-                return false;
             }
+            return end(next);
         };
     }
 }
@@ -247,16 +227,15 @@ function framework(domain,moved,fw) {
  */
 function dynamics(file) {
 
+    var rdc = redirect, exp = expression;
+    var file = require('path').resolve(file);
     if (!fs.existsSync(file)) {
         throw new Error(file + ' not exists');
     }
-    var file = require('path').resolve(file);
-    var rdc = redirect, exp = expression;
 
     return function vhost(req,res,next) {
 
         var host = req.headers.host;
-
         // file refresh; instead require(), that use cache
         var data = JSON.parse(fs.readFileSync(file,'utf8'));
         for (var i = 0, ii = data.length; i < ii; i++) {
@@ -269,7 +248,7 @@ function dynamics(file) {
                 if (domain.test(host)) {
                     proxy.web(req,res);
                     return true;
-                } else if (rdc(null,res,moved,host,req.url)) {
+                } else if (rdc(res,moved,host,req.url)) {
                     return true;
                 }
             } else if (domain.test(host)) {
@@ -277,8 +256,7 @@ function dynamics(file) {
                 return true;
             }
         };
-        next();
-        return false;
+        return end(next);
     };
 }
 
@@ -292,10 +270,11 @@ function dynamics(file) {
  */
 function statics(file,obj) {
 
+    var file = require('path').resolve(file);
     if (!fs.existsSync(file)) {
         throw new Error(file + ' not exists');
     }
-    var d = require(require('path').resolve(file));
+    var d = require(file);
     var domain, proxy;
     var moved, temp;
 
@@ -380,7 +359,7 @@ function statics(file,obj) {
  */
 module.exports = function vhost(options) {
 
-    var options = options || {};
+    var options = options || Object.create(null);
     var domain, fw, proxy;
     var moved, temp;
     var next = Object.create(null);
