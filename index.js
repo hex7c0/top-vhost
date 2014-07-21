@@ -218,7 +218,9 @@ function dynamics(file) {
 
     var rdc = redirect, exp = expression;
     var file = require('path').resolve(file);
-    if (!require('fs').existsSync(file)) {
+    var fs = require('fs');
+    var http_proxy = require('http-proxy');
+    if (!fs.existsSync(file)) {
         throw new Error(file + ' not exists');
     }
 
@@ -226,7 +228,7 @@ function dynamics(file) {
 
         var host = req.headers.host;
         // file refresh; instead require(), that use cache
-        var data = JSON.parse(require('fs').readFileSync(file,'utf8'));
+        var data = JSON.parse(fs.readFileSync(file,'utf8'));
         for (var i = 0, ii = data.length; i < ii; i++) {
             var moved;
             var d = data[i];
@@ -234,7 +236,7 @@ function dynamics(file) {
                 insensitive = 'i';
             }
             var domain = exp(d.domain.source || d.domain);
-            var proxy = require('http-proxy').createProxyServer(d.proxies);
+            var proxy = http_proxy.createProxyServer(d.proxies);
             if (d.redirect) {
                 moved = builder(d.redirect,d.domain.source || d.domain);
                 if (domain.test(host)) {
