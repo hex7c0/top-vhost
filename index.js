@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.5.1
+ * @version 1.5.2
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -14,7 +14,7 @@
  * initialize module
  */
 var fs;
-var redirect = redirect301;
+var redirect = redirect_body(301);
 
 /*
  * common functions
@@ -39,51 +39,40 @@ function builder(moved,domain) {
 }
 
 /**
- * http permanently redirect status code
+ * http redirect builder
  * 
- * @function redirect301
- * @param {Object} res - response
- * @param {Object} moved - regex url
- * @param {String} host - req.headers.host
- * @param {String} url - req.url
- * @return {Boolean}
+ * @function redirect_body
+ * @param {Integer} res - response code
+ * @return {Function}
  */
-function redirect301(res,moved,host,url) {
+function redirect_body(code) {
 
-    var reg = moved.reg;
-    for (var i = 0, ii = reg.length; i < ii; i++) {
-        if (reg[i].test(host)) {
-            res.statusCode = 301;
-            res.setHeader('Location',moved.orig + url);
-            res.end();
-            return true;
+    var cod = code;
+    /**
+     * http redirect status code
+     * 
+     * @function
+     * @param {Object} res - response
+     * @param {Object} moved - regex url
+     * @param {String} host - req.headers.host
+     * @param {String} url - req.url
+     */
+    return function(res,moved,host,url) {
+
+        var reg = moved.reg;
+        for (var i = 0, ii = reg.length; i < ii; i++) {
+            if (reg[i].test(host)) {
+                // clean all headers
+                res._headers = res._headerNames = Object.create(null);
+                res.writeHead(cod,{
+                    'Location': moved.orig + url,
+                });
+                res.end();
+                return true;
+            }
         }
+        return false;
     }
-    return false;
-}
-
-/**
- * http temporary redirect status code
- * 
- * @function redirect307
- * @param {Object} res - response
- * @param {Object} moved - regex url
- * @param {String} host - req.headers.host
- * @param {String} url - req.url
- * @return {Boolean}
- */
-function redirect307(res,moved,host,url) {
-
-    var reg = moved.reg;
-    for (var i = 0, ii = reg.length; i < ii; i++) {
-        if (reg[i].test(host)) {
-            res.statusCode = 307;
-            res.setHeader('Location',moved.orig + url);
-            res.end();
-            return true;
-        }
-    }
-    return false;
 }
 
 /**
@@ -95,7 +84,7 @@ function redirect307(res,moved,host,url) {
  */
 function expression(url) {
 
-    url = url.replace(/http([s]{0,1}):\/\//,'').replace(/\*/g,'([^\.]+)');
+    url = url.replace(/http([s]{0,1}):\/\//i,'').replace(/\*/g,'([^\.]+)');
     // add starting index
     if (url[0] != '^') {
         url = '^' + url;
@@ -103,7 +92,7 @@ function expression(url) {
     // if (url[url.length - 1] == '$') {
     // url = url.slice(0,url.length - 1);
     // }
-    return new RegExp(url,'i');
+    return new RegExp(url);
 }
 
 /**
@@ -147,7 +136,7 @@ function strip(moved) {
  * 
  * @function proxies
  * @param {RegExp} domain - vhost
- * @param {Array} moved - array of 301
+ * @param {Array} moved - array of redirect
  * @param {Object} proxy - proxy
  * @return {Function}
  */
@@ -185,7 +174,7 @@ function proxies(domain,moved,proxy) {
  * 
  * @function framework
  * @param {RegExp} domain - vhost
- * @param {Array} moved - array of 301
+ * @param {Array} moved - array of redirect
  * @param {Object} fw - framework
  * @return {Function}
  */
@@ -301,11 +290,7 @@ function statics(file,obj) {
         moved = builder(d.redirect,obj.orig || d.domain.source || d.domain);
     }
     if (temp = Number(d.redirectStatus)) {
-        if (temp == 301) {
-            redirect = redirect301;
-        } else if (temp == 307) {
-            redirect = redirect307;
-        }
+        redirect = redirect_body(temp);
     }
 
     // extra
@@ -314,12 +299,12 @@ function statics(file,obj) {
         if (d.stripHTTP) {
             return strip({
                 reg: [/./],
-                orig: temp.replace(/http:\/\//,'https://'),
+                orig: temp.replace(/http:\/\//i,'https://'),
             });
         } else if (d.stripHTTPS) {
             return strip({
                 reg: [/./],
-                orig: temp.replace(/https:\/\//,'http://'),
+                orig: temp.replace(/https:\/\//i,'http://'),
             });
         }
         if (d.stripWWW) {
@@ -399,11 +384,7 @@ module.exports = function vhost(options) {
         next.moved = moved;
     }
     if (temp = Number(options.redirectStatus)) {
-        if (temp == 301) {
-            redirect = redirect301;
-        } else if (temp == 307) {
-            redirect = redirect307;
-        }
+        redirect = redirect_body(temp);
     }
 
     // extra
@@ -412,12 +393,12 @@ module.exports = function vhost(options) {
         if (options.stripHTTP) {
             return strip({
                 reg: [/./],
-                orig: temp.replace(/http:\/\//,'https://'),
+                orig: temp.replace(/http:\/\//i,'https://'),
             });
         } else if (options.stripHTTPS) {
             return strip({
                 reg: [/./],
-                orig: temp.replace(/https:\/\//,'http://'),
+                orig: temp.replace(/https:\/\//i,'http://'),
             });
         }
         if (options.stripWWW) {
