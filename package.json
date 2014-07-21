@@ -1,6 +1,6 @@
 {
   "name": "top-vhost",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "top-down virtual host for nodejs",
   "main": "index.js",
   "repository": {
@@ -19,7 +19,7 @@
     "http-proxy": "1.1.X"
   },
   "devDependencies": {
-    "express": "4.5.X"
+    "express": "4.6.X"
   },
   "engines": {
     "node": ">0.8.0"
