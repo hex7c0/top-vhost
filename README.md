@@ -1,7 +1,6 @@
 #top-vhost [![Build Status](https://travis-ci.org/hex7c0/top-vhost.svg?branch=master)](https://travis-ci.org/hex7c0/top-vhost) [![NPM version](https://badge.fury.io/js/top-vhost.svg)](http://badge.fury.io/js/top-vhost)
 
 top-down virtual host for [nodejs](http://nodejs.org/). Optional, you can set this module like a proxy or a redirect.
-"try-catch" responsibility of the user for loop performance.
 
 ## Installation
 
@@ -40,7 +39,8 @@ father.listen(3000);
  - `dynamic` - **String** Path of dynamic configuration json file (only with Proxies). Array of hosts *(default "disabled")*
  - `static` - **String** Path of static configuration json file. Preserve options *(default "disabled")*
  - `redirect` - **Array** Array of url that will be redirected to this domain *(default "disabled")*
- - `redirectStatus` - **301 | 307** Set type of HTTP header for redirect (permanently or temporary) *(default "301")*
+ - `redirectStatus` - **Number** Set type of HTTP header for redirect (permanently 301 or temporary 307) or use another *(default "301")*
+ - `insensitive` - **Boolean** Set True if want parse insensitive match *(default "sensitive")*
  - `stripWWW` - **Boolean** Stripe all "www." url *(default "disabled")*
  - `stripHTTP` - **Boolean** Redirect all "http://" to "https://" url *(default "disabled")*
  - `stripHTTPS` - **Boolean** Redirect all "https://" to "http://" url *(default "disabled")*

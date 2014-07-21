@@ -1,3 +1,10 @@
+v1.5.2 / 2014-07-21
+==================
+
+  * Remove case [insensitive](http://jsperf.com/case-sensitive-regex-vs-case-insensitive-regex)
+  * Add `insensitive` option
+  * Redirect builder with custom status code
+
 v1.5.1 / 2014-07-21
 ==================
 
