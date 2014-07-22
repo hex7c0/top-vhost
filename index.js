@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.5.2
+ * @version 1.5.3
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -72,7 +72,7 @@ function redirect_body(code) {
             }
         }
         return false;
-    }
+    };
 }
 
 /**
@@ -84,7 +84,7 @@ function redirect_body(code) {
  */
 function expression(url) {
 
-    url = url.replace(/http([s]{0,1}):\/\//i,'').replace(/\*/g,'([^\.]+)');
+    var url = url.replace(/http([s]{0,1}):\/\//i,'').replace(/\*/g,'([^\.]+)');
     // add starting index
     if (url[0] != '^') {
         url = '^' + url;
@@ -92,7 +92,7 @@ function expression(url) {
     // if (url[url.length - 1] == '$') {
     // url = url.slice(0,url.length - 1);
     // }
-    return new RegExp(url,insensitive)
+    return new RegExp(url,insensitive);
 }
 
 /**
@@ -105,7 +105,7 @@ function expression(url) {
 function end(next) {
 
     try {
-        next()
+        next();
     } catch (TypeError) {
         // pass
     }
@@ -156,17 +156,16 @@ function proxies(domain,moved,proxy) {
             }
             return end(next);
         };
-    } else {
-        return function vhost(req,res,next) {
-
-            var host = req.headers.host;
-            if (domainC.test(host)) {
-                proxyC.web(req,res);
-                return true;
-            }
-            return end(next);
-        };
     }
+    return function vhost(req,res,next) {
+
+        var host = req.headers.host;
+        if (domainC.test(host)) {
+            proxyC.web(req,res);
+            return true;
+        }
+        return end(next);
+    };
 }
 
 /**
@@ -194,17 +193,16 @@ function framework(domain,moved,fw) {
             }
             return end(next);
         };
-    } else {
-        return function vhost(req,res,next) {
-
-            var host = req.headers.host;
-            if (domainC.test(host)) {
-                fwC(req,res);
-                return true;
-            }
-            return end(next);
-        };
     }
+    return function vhost(req,res,next) {
+
+        var host = req.headers.host;
+        if (domainC.test(host)) {
+            fwC(req,res);
+            return true;
+        }
+        return end(next);
+    };
 }
 
 /**
@@ -249,7 +247,7 @@ function dynamics(file) {
                 proxy.web(req,res);
                 return true;
             }
-        };
+        }
         return end(next);
     };
 }
@@ -433,7 +431,6 @@ module.exports = function vhost(options) {
         return framework(domain,moved,fw);
     } else if (proxy) {
         return proxies(domain,moved,proxy);
-    } else {
-        throw new Error('"framework" or "proxies" are required');
     }
+    throw new Error('"framework" or "proxies" are required');
 };
