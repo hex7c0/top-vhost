@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.5.3
+ * @version 1.6.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -232,6 +232,8 @@ function dynamics(file) {
             var d = data[i];
             if (Boolean(d.insensitive)) {
                 insensitive = 'i';
+            } else {
+                insensitive = undefined;
             }
             var domain = exp(d.domain.source || d.domain);
             var proxy = http_proxy.createProxyServer(d.proxies);
@@ -273,6 +275,8 @@ function statics(file,obj) {
     // domain
     if (Boolean(d.insensitive)) {
         insensitive = 'i';
+    } else {
+        insensitive = undefined;
     }
     if (obj.domain) {
         domain = obj.domain;
@@ -367,6 +371,8 @@ module.exports = function vhost(options) {
     // domain
     if (Boolean(options.insensitive)) {
         insensitive = 'i';
+    } else {
+        insensitive = undefined;
     }
     if (domain = options.domain) {
         if (domain.constructor.name == 'RegExp') {
