@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.6.0
+ * @version 1.6.2
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
