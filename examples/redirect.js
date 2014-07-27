@@ -14,7 +14,7 @@
  */
 // import
 try {
-    var vhost = require('../index.js'); // use require('top-vhost') instead
+    var vhost = require('../index.min.js'); // use require('top-vhost') instead
     var express = require('express');
     var father = express();
     var child0 = express();

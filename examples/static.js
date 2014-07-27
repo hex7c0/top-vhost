@@ -14,7 +14,7 @@
  */
 // import
 try {
-    var vhost = require('../index.js'); // use require('top-vhost') instead
+    var vhost = require('../index.min.js'); // use require('top-vhost') instead
     var express = require('express');
     var father = express();
     var child0 = express();
@@ -55,15 +55,15 @@ child2.get('/admin',function(req,res) {
 
 // server starting
 father.use(vhost({
-    static: 'child0.json',
+    static: 'static0.json',
     framework: child0
 }));
 father.use(vhost({
-    static: 'child1.json',
+    static: 'static1.json',
 }));
 father.use(vhost({
     domain: 'http://pippo.com:3000',
-    static: 'child2.json',
+    static: 'static2.json',
     framework: child2
 }));
 father.listen(3000);
