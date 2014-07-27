@@ -1,8 +1,8 @@
 {
   "name": "top-vhost",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "top-down virtual host for nodejs",
-  "main": "index.js",
+  "main": "index.min.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/hex7c0/top-vhost.git"
@@ -16,13 +16,20 @@
     "url": "http://hex7c0.tk/"
   },
   "dependencies": {
-    "http-proxy": "1.1.X"
+    "http-proxy": "1.1.6"
   },
   "devDependencies": {
-    "express": "4.6.X"
+    "express": "~4.7.1",
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-uglify": "0.5.0",
+    "load-grunt-tasks": "~0.6.0"
   },
   "engines": {
-    "node": ">0.8.0"
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "prepublish": "npm prune"
   },
   "keywords": [
     "vhost",
