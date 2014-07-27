@@ -1,6 +1,10 @@
-#top-vhost [![Build Status](https://travis-ci.org/hex7c0/top-vhost.svg?branch=master)](https://travis-ci.org/hex7c0/top-vhost) [![NPM version](https://badge.fury.io/js/top-vhost.svg)](http://badge.fury.io/js/top-vhost)
+# [top-vhost](https://github.com/hex7c0/top-vhost)
+[![NPM version](https://badge.fury.io/js/top-vhost.svg)](http://badge.fury.io/js/top-vhost)
+[![Build Status](https://travis-ci.org/hex7c0/top-vhost.svg?branch=master)](https://travis-ci.org/hex7c0/top-vhost)
+[![devDependency Status](https://david-dm.org/hex7c0/top-vhost/dev-status.svg)](https://david-dm.org/hex7c0/top-vhost#info=devDependencies)
 
-top-down virtual host for [nodejs](http://nodejs.org/). Optional, you can set this module like a proxy or a redirect.
+Top-Down virtual host for [nodejs](http://nodejs.org/).
+Optional, you can set this module like a proxy or a redirect.
 
 ## Installation
 
@@ -34,6 +38,8 @@ father.listen(3000);
 ```
 
 ### vhost(options)
+
+#### options
 
  - `domain` - **String | RegExp** Name or Regex of virtual host *(required)*
  - `dynamic` - **String** Path of dynamic configuration json file (only with Proxies). Array of hosts *(default "disabled")*

@@ -1,3 +1,11 @@
+v1.6.0 / 2014-07-27
+==================
+
+  * Test "node": ">=0.10.0" only
+  * Using task runner `grunt`
+  * ".npmignore" more aggressive
+  * `uglify` compiles
+
 v1.5.3 / 2014-07-22
 ==================
 
