@@ -60,6 +60,7 @@ function redirect_body(code) {
     return function(res,moved,host,url) {
 
         var reg = moved.reg;
+
         for (var i = 0, ii = reg.length; i < ii; i++) {
             if (reg[i].test(host)) {
                 // clean all headers
@@ -116,7 +117,7 @@ function end(next) {
  * return functions
  */
 /**
- * proxy work
+ * strip snippet
  * 
  * @function strip
  * @param {Array} moved - http(s) redirect
@@ -127,7 +128,10 @@ function strip(moved) {
     var mvd = moved, rdc = redirect;
     return function vhost(req,res,next) {
 
-        return rdc(res,mvd,'*',req.url);
+        if (!rdc(res,mvd,req.headers.host,req.url)) {
+            next();
+        }
+        return;
     };
 }
 
@@ -304,7 +308,7 @@ function statics(file,obj) {
     }
 
     // extra
-    if (d.stripWWW || d.stripHTTP || d.stripHTTPS) {
+    if (d.stripWWW || d.stripOnlyWWW || d.stripHTTP || d.stripHTTPS) {
         temp = obj.orig || d.domain.source || d.domain;
         if (d.stripHTTP) {
             return strip({
@@ -315,6 +319,11 @@ function statics(file,obj) {
             return strip({
                 reg: [/./],
                 orig: temp.replace(/https:\/\//i,'http://'),
+            });
+        } else if (d.stripOnlyWWW) {
+            return strip({
+                reg: [/^www./],
+                orig: temp.replace(/www./i,'.'),
             });
         }
         if (d.stripWWW) {
@@ -403,7 +412,8 @@ module.exports = function vhost(options) {
     }
 
     // extra
-    if (options.stripWWW || options.stripHTTP || options.stripHTTPS) {
+    if (options.stripWWW || options.stripOnlyWWW || options.stripHTTP
+            || options.stripHTTPS) {
         temp = options.domain.source || options.domain;
         if (options.stripHTTP) {
             return strip({
@@ -414,6 +424,11 @@ module.exports = function vhost(options) {
             return strip({
                 reg: [/./],
                 orig: temp.replace(/https:\/\//i,'http://'),
+            });
+        } else if (options.stripOnlyWWW) {
+            return strip({
+                reg: [/^www./],
+                orig: temp.replace(/www./i,'.'),
             });
         }
         if (options.stripWWW) {
