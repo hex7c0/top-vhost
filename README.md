@@ -17,6 +17,10 @@ or
 ```
 git clone git://github.com/hex7c0/top-vhost.git
 ```
+or
+```
+http://supergiovane.tk/#/top-vhost
+```
 
 ## API
 
@@ -48,6 +52,7 @@ father.listen(3000);
  - `redirectStatus` - **Number** Set type of HTTP header for redirect (permanently 301 or temporary 307) or use another *(default "301")*
  - `insensitive` - **Boolean** Set True if want parse insensitive match *(default "sensitive")*
  - `stripWWW` - **Boolean** Stripe all "www." url *(default "disabled")*
+ - `stripOnlyWWW` - **Boolean** Redirect all "www." url to "." url *(default "disabled")*
  - `stripHTTP` - **Boolean** Redirect all "http://" to "https://" url *(default "disabled")*
  - `stripHTTPS` - **Boolean** Redirect all "https://" to "http://" url *(default "disabled")*
  - `framework` - **Function** Functions releated to this virtual host *(optional)*

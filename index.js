@@ -4,354 +4,11 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.6.2
+ * @version 1.7.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
  */
-
-/*
- * initialize module
- */
-var redirect = redirect_body(301);
-var insensitive;
-
-/*
- * common functions
- */
-/**
- * http redirect builder
- * 
- * @function builder
- * @param {Array} moved - url
- * @param {String} domain - req.headers.host
- * @return {Object}
- */
-function builder(moved,domain) {
-
-    for (var i = 0, ii = moved.length; i < ii; i++) {
-        moved[i] = expression(moved[i]);
-    }
-    return {
-        reg: moved,
-        orig: domain,
-    };
-}
-
-/**
- * http redirect builder
- * 
- * @function redirect_body
- * @param {Integer} res - response code
- * @return {Function}
- */
-function redirect_body(code) {
-
-    var cod = code;
-    /**
-     * http redirect status code
-     * 
-     * @function
-     * @param {Object} res - response
-     * @param {Object} moved - regex url
-     * @param {String} host - req.headers.host
-     * @param {String} url - req.url
-     */
-    return function(res,moved,host,url) {
-
-        var reg = moved.reg;
-
-        for (var i = 0, ii = reg.length; i < ii; i++) {
-            if (reg[i].test(host)) {
-                // clean all headers
-                res._headers = res._headerNames = Object.create(null);
-                res.writeHead(cod,{
-                    'Location': moved.orig + url,
-                });
-                res.end();
-                return true;
-            }
-        }
-        return false;
-    };
-}
-
-/**
- * regex builder
- * 
- * @function expression
- * @param {String} url - url to be parsed
- * @return {RegExp}
- */
-function expression(url) {
-
-    var url = url.replace(/http([s]{0,1}):\/\//i,'').replace(/\*/g,'([^\.]+)');
-    // add starting index
-    if (url[0] != '^') {
-        url = '^' + url;
-    }
-    // if (url[url.length - 1] == '$') {
-    // url = url.slice(0,url.length - 1);
-    // }
-    return new RegExp(url,insensitive);
-}
-
-/**
- * ending function
- * 
- * @function end
- * @param {Function} next - next op
- * @return {Boolean}
- */
-function end(next) {
-
-    try {
-        next();
-    } catch (TypeError) {
-        // pass
-    }
-    return false;
-}
-
-/*
- * return functions
- */
-/**
- * strip snippet
- * 
- * @function strip
- * @param {Array} moved - http(s) redirect
- * @return {Function}
- */
-function strip(moved) {
-
-    var mvd = moved, rdc = redirect;
-    return function vhost(req,res,next) {
-
-        if (!rdc(res,mvd,req.headers.host,req.url)) {
-            next();
-        }
-        return;
-    };
-}
-
-/**
- * proxy work
- * 
- * @function proxies
- * @param {RegExp} domain - vhost
- * @param {Array} moved - array of redirect
- * @param {Object} proxy - proxy
- * @return {Function}
- */
-function proxies(domain,moved,proxy) {
-
-    var domainC = domain, proxyC = proxy;
-    if (moved) {
-        var mvd = moved, rdc = redirect;
-        return function vhost(req,res,next) {
-
-            var host = req.headers.host;
-            if (domainC.test(host)) {
-                proxyC.web(req,res);
-                return true;
-            } else if (rdc(res,mvd,host,req.url)) {
-                return true;
-            }
-            return end(next);
-        };
-    }
-    return function vhost(req,res,next) {
-
-        var host = req.headers.host;
-        if (domainC.test(host)) {
-            proxyC.web(req,res);
-            return true;
-        }
-        return end(next);
-    };
-}
-
-/**
- * framework work
- * 
- * @function framework
- * @param {RegExp} domain - vhost
- * @param {Array} moved - array of redirect
- * @param {Object} fw - framework
- * @return {Function}
- */
-function framework(domain,moved,fw) {
-
-    var domainC = domain, fwC = fw;
-    if (moved) {
-        var mvd = moved, rdc = redirect;
-        return function vhost(req,res,next) {
-
-            var host = req.headers.host;
-            if (domainC.test(host)) {
-                fwC(req,res);
-                return true;
-            } else if (rdc(res,mvd,host,req.url)) {
-                return true;
-            }
-            return end(next);
-        };
-    }
-    return function vhost(req,res,next) {
-
-        var host = req.headers.host;
-        if (domainC.test(host)) {
-            fwC(req,res);
-            return true;
-        }
-        return end(next);
-    };
-}
-
-/**
- * dynamic file
- * 
- * @function dynamic
- * @param {String} file - input file
- * @return {Function}
- */
-function dynamics(file) {
-
-    var rdc = redirect, exp = expression;
-    var file = require('path').resolve(file);
-    var fs = require('fs');
-    var http_proxy = require('http-proxy');
-    if (!fs.existsSync(file)) {
-        throw new Error(file + ' not exists');
-    }
-
-    return function vhost(req,res,next) {
-
-        var host = req.headers.host;
-        // file refresh; instead require(), that use cache
-        var data = JSON.parse(fs.readFileSync(file,'utf8'));
-        for (var i = 0, ii = data.length; i < ii; i++) {
-            var moved;
-            var d = data[i];
-            if (Boolean(d.insensitive)) {
-                insensitive = 'i';
-            } else {
-                insensitive = undefined;
-            }
-            var domain = exp(d.domain.source || d.domain);
-            var proxy = http_proxy.createProxyServer(d.proxies);
-            if (d.redirect) {
-                moved = builder(d.redirect,d.domain.source || d.domain);
-                if (domain.test(host)) {
-                    proxy.web(req,res);
-                    return true;
-                } else if (rdc(res,moved,host,req.url)) {
-                    return true;
-                }
-            } else if (domain.test(host)) {
-                proxy.web(req,res);
-                return true;
-            }
-        }
-        return end(next);
-    };
-}
-
-/**
- * statics file
- * 
- * @function statics
- * @param {String} file - input file
- * @param {Object} obj - parsed options
- * @return {Function}
- */
-function statics(file,obj) {
-
-    var file = require('path').resolve(file);
-    if (!require('fs').existsSync(file)) {
-        throw new Error(file + ' not exists');
-    }
-    var d = require(file);
-    var domain, proxy;
-    var moved, temp;
-
-    // domain
-    if (Boolean(d.insensitive)) {
-        insensitive = 'i';
-    } else {
-        insensitive = undefined;
-    }
-    if (obj.domain) {
-        domain = obj.domain;
-    } else if (domain = d.domain) {
-        if (domain.constructor.name == 'RegExp') {
-            domain = domain.source;
-        } else if (typeof (domain) != 'string') {
-            throw new Error('invalid "domain" argument');
-        }
-        domain = expression(domain);
-    } else if (d.dynamic) {
-        // pass
-    } else {
-        throw new Error('"domain" is required');
-    }
-
-    // single
-    if (obj.moved) {
-        moved = obj.moved;
-    } else if (Array.isArray(d.redirect) == true) {
-        moved = builder(d.redirect,obj.orig || d.domain.source || d.domain);
-    }
-    if (temp = Number(d.redirectStatus)) {
-        redirect = redirect_body(temp);
-    }
-
-    // extra
-    if (d.stripWWW || d.stripOnlyWWW || d.stripHTTP || d.stripHTTPS) {
-        temp = obj.orig || d.domain.source || d.domain;
-        if (d.stripHTTP) {
-            return strip({
-                reg: [/./],
-                orig: temp.replace(/http:\/\//i,'https://'),
-            });
-        } else if (d.stripHTTPS) {
-            return strip({
-                reg: [/./],
-                orig: temp.replace(/https:\/\//i,'http://'),
-            });
-        } else if (d.stripOnlyWWW) {
-            return strip({
-                reg: [/^www./],
-                orig: temp.replace(/www./i,'.'),
-            });
-        }
-        if (d.stripWWW) {
-            if (typeof (moved) != 'object') {
-                moved = {
-                    reg: [/^www./],
-                    orig: domain,
-                };
-            } else {
-                moved.reg.push(/^www./);
-            }
-        }
-    }
-
-    // return
-    if (d.dynamic) {
-        return dynamics(String(d.dynamic));
-    } else if (obj.framework) {
-        return framework(domain,moved,obj.framework);
-    } else if (obj.proxies) {
-        return proxies(domain,moved,obj.proxies);
-    } else if (d.proxies && typeof (d.proxies) == 'object') {
-        proxy = require('http-proxy').createProxyServer(d.proxies);
-        return proxies(domain,moved,proxy);
-    } else {
-        throw new Error('"framework" or "proxies" are required');
-    }
-}
 
 /**
  * main
@@ -362,6 +19,349 @@ function statics(file,obj) {
  * @return {Function}
  */
 module.exports = function vhost(options) {
+
+    /*
+     * wrapper module
+     */
+    var redirect = redirect_body(301);
+    var insensitive;
+
+    /*
+     * common functions
+     */
+    /**
+     * http redirect builder
+     * 
+     * @function builder
+     * @param {Array} moved - url
+     * @param {String} domain - req.headers.host
+     * @return {Object}
+     */
+    function builder(moved,domain) {
+
+        for (var i = 0, ii = moved.length; i < ii; i++) {
+            moved[i] = expression(moved[i]);
+        }
+        return {
+            reg: moved,
+            orig: domain,
+        };
+    }
+
+    /**
+     * http redirect builder
+     * 
+     * @function redirect_body
+     * @param {Integer} res - response code
+     * @return {Function}
+     */
+    function redirect_body(code) {
+
+        var cod = code;
+        /**
+         * http redirect status code
+         * 
+         * @function
+         * @param {Object} res - response
+         * @param {Object} moved - regex url
+         * @param {String} host - req.headers.host
+         * @param {String} url - req.url
+         */
+        return function(res,moved,host,url) {
+
+            var reg = moved.reg;
+
+            for (var i = 0, ii = reg.length; i < ii; i++) {
+                if (reg[i].test(host)) {
+                    // clean all headers
+                    res._headers = res._headerNames = Object.create(null);
+                    res.writeHead(cod,{
+                        'Location': moved.orig + url,
+                    });
+                    res.end();
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
+
+    /**
+     * regex builder
+     * 
+     * @function expression
+     * @param {String} url - url to be parsed
+     * @return {RegExp}
+     */
+    function expression(url) {
+
+        var url = url.replace(/http([s]{0,1}):\/\//i,'').replace(/\*/g,
+                '([^\.]+)');
+        // add starting index
+        if (url[0] != '^') {
+            url = '^' + url;
+        }
+        // if (url[url.length - 1] == '$') {
+        // url = url.slice(0,url.length - 1);
+        // }
+        return new RegExp(url,insensitive);
+    }
+
+    /**
+     * ending function
+     * 
+     * @function end
+     * @param {Function} next - next op
+     * @return {Boolean}
+     */
+    function end(next) {
+
+        try {
+            next();
+        } catch (TypeError) {
+            // pass
+        }
+        return false;
+    }
+
+    /*
+     * return functions
+     */
+    /**
+     * strip snippet
+     * 
+     * @function strip
+     * @param {Array} moved - http(s) redirect
+     * @return {Function}
+     */
+    function strip(moved) {
+
+        return function vhost(req,res,next) {
+
+            if (!redirect(res,moved,req.headers.host,req.url)) {
+                end(next);
+            }
+            return;
+        };
+    }
+
+    /**
+     * proxy work
+     * 
+     * @function proxies
+     * @param {RegExp} domain - vhost
+     * @param {Array} moved - array of redirect
+     * @param {Object} proxy - proxy
+     * @return {Function}
+     */
+    function proxies(domain,moved,proxy) {
+
+        var domainC = domain, proxyC = proxy;
+        if (moved) {
+            var mvd = moved, rdc = redirect;
+            return function vhost(req,res,next) {
+
+                var host = req.headers.host;
+                if (domainC.test(host)) {
+                    proxyC.web(req,res);
+                    return true;
+                } else if (rdc(res,mvd,host,req.url)) {
+                    return true;
+                }
+                return end(next);
+            };
+        }
+        return function vhost(req,res,next) {
+
+            var host = req.headers.host;
+            if (domainC.test(host)) {
+                proxyC.web(req,res);
+                return true;
+            }
+            return end(next);
+        };
+    }
+
+    /**
+     * framework work
+     * 
+     * @function framework
+     * @param {RegExp} domain - vhost
+     * @param {Array} moved - array of redirect
+     * @param {Object} fw - framework
+     * @return {Function}
+     */
+    function framework(domain,moved,fw) {
+
+        var domainC = domain, fwC = fw;
+        if (moved) {
+            var mvd = moved, rdc = redirect;
+            return function vhost(req,res,next) {
+
+                var host = req.headers.host;
+                if (domainC.test(host)) {
+                    fwC(req,res);
+                    return true;
+                } else if (rdc(res,mvd,host,req.url)) {
+                    return true;
+                }
+                return end(next);
+            };
+        }
+        return function vhost(req,res,next) {
+
+            var host = req.headers.host;
+            if (domainC.test(host)) {
+                fwC(req,res);
+                return true;
+            }
+            return end(next);
+        };
+    }
+
+    /**
+     * dynamic file
+     * 
+     * @function dynamic
+     * @param {String} file - input file
+     * @return {Function}
+     */
+    function dynamics(file) {
+
+        var rdc = redirect, exp = expression;
+        var file = require('path').resolve(file);
+        var fs = require('fs');
+        var http_proxy = require('http-proxy');
+        if (!fs.existsSync(file)) {
+            throw new Error(file + ' not exists');
+        }
+
+        return function vhost(req,res,next) {
+
+            var host = req.headers.host;
+            // file refresh; instead require(), that use cache
+            var data = JSON.parse(fs.readFileSync(file,'utf8'));
+            for (var i = 0, ii = data.length; i < ii; i++) {
+                var moved;
+                var d = data[i];
+                if (Boolean(d.insensitive)) {
+                    insensitive = 'i';
+                } else {
+                    insensitive = undefined;
+                }
+                var domain = exp(d.domain.source || d.domain);
+                var proxy = http_proxy.createProxyServer(d.proxies);
+                if (d.redirect) {
+                    moved = builder(d.redirect,d.domain.source || d.domain);
+                    if (domain.test(host)) {
+                        proxy.web(req,res);
+                        return true;
+                    } else if (rdc(res,moved,host,req.url)) {
+                        return true;
+                    }
+                } else if (domain.test(host)) {
+                    proxy.web(req,res);
+                    return true;
+                }
+            }
+            return end(next);
+        };
+    }
+
+    /**
+     * statics file
+     * 
+     * @function statics
+     * @param {String} file - input file
+     * @param {Object} obj - parsed options
+     * @return {Function}
+     */
+    function statics(file,obj) {
+
+        var file = require('path').resolve(file);
+        if (!require('fs').existsSync(file)) {
+            throw new Error(file + ' not exists');
+        }
+        var d = require(file);
+        var domain, proxy;
+        var moved, temp;
+
+        // domain
+        if (Boolean(d.insensitive)) {
+            insensitive = 'i';
+        } else {
+            insensitive = undefined;
+        }
+        if (obj.domain) {
+            domain = obj.domain;
+        } else if (domain = d.domain) {
+            if (domain.constructor.name == 'RegExp') {
+                domain = domain.source;
+            } else if (typeof (domain) != 'string') {
+                throw new Error('invalid "domain" argument');
+            }
+            domain = expression(domain);
+        } else if (d.dynamic) {
+            // pass
+        } else {
+            throw new Error('"domain" is required');
+        }
+
+        // single
+        if (obj.moved) {
+            moved = obj.moved;
+        } else if (Array.isArray(d.redirect) == true) {
+            moved = builder(d.redirect,obj.orig || d.domain.source || d.domain);
+        }
+        if (temp = Number(d.redirectStatus)) {
+            redirect = redirect_body(temp);
+        }
+
+        // extra
+        if (d.stripWWW || d.stripOnlyWWW || d.stripHTTP || d.stripHTTPS) {
+            temp = obj.orig || d.domain.source || d.domain;
+            if (d.stripHTTP) {
+                return strip({
+                    reg: [/./],
+                    orig: temp.replace(/http:\/\//i,'https://'),
+                });
+            } else if (d.stripHTTPS) {
+                return strip({
+                    reg: [/./],
+                    orig: temp.replace(/https:\/\//i,'http://'),
+                });
+            } else if (d.stripOnlyWWW) {
+                return strip({
+                    reg: [/^www./],
+                    orig: temp.replace(/www./i,'.'),
+                });
+            }
+            if (d.stripWWW) {
+                if (typeof (moved) != 'object') {
+                    moved = {
+                        reg: [/^www./],
+                        orig: domain,
+                    };
+                } else {
+                    moved.reg.push(/^www./);
+                }
+            }
+        }
+
+        // return
+        if (d.dynamic) {
+            return dynamics(String(d.dynamic));
+        } else if (obj.framework) {
+            return framework(domain,moved,obj.framework);
+        } else if (obj.proxies) {
+            return proxies(domain,moved,obj.proxies);
+        } else if (d.proxies && typeof (d.proxies) == 'object') {
+            proxy = require('http-proxy').createProxyServer(d.proxies);
+            return proxies(domain,moved,proxy);
+        } else {
+            throw new Error('"framework" or "proxies" are required');
+        }
+    }
 
     var options = options || Object.create(null);
     var domain, fw, proxy;
