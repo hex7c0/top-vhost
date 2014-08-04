@@ -22,6 +22,7 @@ module.exports = function(grunt) {
             options: {
                 preserveComments: 'false',
                 banner: '<%= banner %>',
+                footer: '\n'
             },
             target: {
                 files: [{
@@ -38,14 +39,24 @@ module.exports = function(grunt) {
             }
         },
 
+        shell: {
+            options: {
+                failOnError: false
+            },
+            docs: {
+                command: 'jsdoc ./lib/*.js ./module/*.js -c .jsdoc.json'
+            }
+        }
     });
 
-    require('load-grunt-tasks')(grunt,{
-        scope: 'devDependencies'
-    });
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-shell');
 
     grunt.registerTask('min',['clean','uglify']);
-    grunt.registerTask('default',['min']);
+    grunt.registerTask('doc',['shell']);
+    grunt.registerTask('default',['min','doc']);
 
+    return;
 };
 
