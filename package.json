@@ -1,36 +1,7 @@
 {
+  "version": "1.7.0",
   "name": "top-vhost",
-  "version": "1.6.2",
   "description": "top-down virtual host for nodejs",
-  "main": "index.min.js",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/hex7c0/top-vhost.git"
-  },
-  "bugs": {
-    "url": "https://github.com/hex7c0/top-vhost/issues"
-  },
-  "author": {
-    "name": "hex7c0",
-    "email": "hex7c0@gmail.com",
-    "url": "http://hex7c0.tk/"
-  },
-  "dependencies": {
-    "http-proxy": "1.1.6"
-  },
-  "devDependencies": {
-    "express": "~4.7.1",
-    "grunt": "~0.4.5",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-uglify": "0.5.0",
-    "load-grunt-tasks": "~0.6.0"
-  },
-  "engines": {
-    "node": ">=0.10.0"
-  },
-  "scripts": {
-    "prepublish": "npm prune"
-  },
   "keywords": [
     "vhost",
     "virtual",
@@ -39,6 +10,39 @@
     "subdomain",
     "redirect"
   ],
-  "license": "GPLv3",
-  "homepage": "https://github.com/hex7c0/top-vhost/"
+  "preferGlobal": false,
+  "homepage": "http://supergiovane.tk/#/top-vhost",
+  "author": {
+    "name": "hex7c0",
+    "email": "hex7c0@gmail.com",
+    "url": "http://hex7c0.tk/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hex7c0/top-vhost.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hex7c0/top-vhost/issues",
+    "email": "hex7c0@gmail.com"
+  },
+  "directories":{
+    "doc":"./doc"
+  },
+  "main": "index.min.js",
+  "dependencies": {
+    "http-proxy": "1.1.6"
+  },
+  "devDependencies": {
+    "express": "~4.7.1",
+    "grunt-contrib-clean": "0.5.0",
+    "grunt-contrib-uglify": "0.5.0",
+    "grunt-shell": "~0.7.0"
+  },
+  "engines": {
+    "node": ">=0.10"
+  },
+  "scripts": {
+    "prepublish": "npm prune"
+  },
+  "license": "GPLv3"
 }
