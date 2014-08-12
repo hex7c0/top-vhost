@@ -1,7 +1,7 @@
 {
-  "version": "1.7.0",
+  "version": "1.7.1",
   "name": "top-vhost",
-  "description": "top-down virtual host for nodejs",
+  "description": "top-down virtual host",
   "keywords": [
     "vhost",
     "virtual",
@@ -30,10 +30,10 @@
   },
   "main": "index.min.js",
   "dependencies": {
-    "http-proxy": "1.1.6"
+    "http-proxy": "1.2.0"
   },
   "devDependencies": {
-    "express": "~4.7.1",
+    "express": "~4.8.3",
     "grunt-contrib-clean": "0.5.0",
     "grunt-contrib-uglify": "0.5.0",
     "grunt-shell": "~0.7.0"
