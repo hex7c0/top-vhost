@@ -2,7 +2,7 @@
 
 [![NPM version](https://badge.fury.io/js/top-vhost.svg)](http://badge.fury.io/js/top-vhost)
 [![Build Status](https://travis-ci.org/hex7c0/top-vhost.svg?branch=master)](https://travis-ci.org/hex7c0/top-vhost)
-[![devDependency Status](https://david-dm.org/hex7c0/top-vhost/dev-status.svg)](https://david-dm.org/hex7c0/top-vhost#info=devDependencies)
+[![Dependency Status](https://david-dm.org/hex7c0/top-vhost/status.svg)](https://david-dm.org/hex7c0/top-vhost)
 
 Top-Down virtual host for [nodejs](http://nodejs.org/).
 Optional, you can set this module like a proxy or a redirect.

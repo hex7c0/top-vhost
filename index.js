@@ -116,10 +116,8 @@ module.exports = function vhost(options) {
      */
     function end(next) {
 
-        try {
-            next();
-        } catch (TypeError) {
-            // pass
+        if (next) {
+            return next();
         }
         return false;
     }
