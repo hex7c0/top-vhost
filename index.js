@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.7.2
+ * @version 1.7.5
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -95,8 +95,8 @@ module.exports = function vhost(options) {
      */
     function expression(url) {
 
-        var url = url.replace(/http([s]{0,1}):\/\//i, '').replace(/\*/g,
-                '([^\.]+)');
+        var url = url.replace(/http([s]{0,1}):\/\//i, '')
+                .replace(/\*/g, '([^\.]+)');
         // add starting index
         if (url[0] != '^') {
             url = '^' + url;
@@ -406,7 +406,7 @@ module.exports = function vhost(options) {
 
     // single
     if (options.file) {
-        console.error('top-vhost > "file" option is deprecated');
+        console.info('top-vhost > "file" option is deprecated');
     }
     if (Array.isArray(options.redirect) === true) {
         moved = builder(options.redirect, options.domain.source
