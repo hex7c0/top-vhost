@@ -20,17 +20,16 @@ module.exports = function(grunt) {
 
         uglify: {
             options: {
-                preserveComments: 'false',
-                banner: '<%= banner %>'
+                preserveComments: 'false'
             },
             target: {
                 files: [ {
                     expand: true,
-                    src: 'lib/*.js',
+                    src: 'lib/**/*.js',
                     dest: 'min'
                 }, {
                     expand: true,
-                    src: 'module/*.js',
+                    src: 'module/**/*.js',
                     dest: 'min'
                 }, {
                     'index.min.js': 'index.js'
