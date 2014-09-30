@@ -1,5 +1,5 @@
 {
-  "version": "1.7.5",
+  "version": "1.7.6",
   "name": "top-vhost",
   "description": "top-down virtual host",
   "keywords": [
@@ -30,12 +30,12 @@
   },
   "main": "index.min.js",
   "dependencies": {
-    "http-proxy": "1.4.3"
+    "http-proxy": "1.5.0"
   },
   "devDependencies": {
     "express": "~4.9.0",
     "grunt-contrib-clean": "~0.6.0",
-    "grunt-contrib-uglify": "~0.5.1",
+    "grunt-contrib-uglify": "~0.6.0",
     "grunt-endline": "~0.2.0",
     "grunt-shell": "~1.1.1"
   },
