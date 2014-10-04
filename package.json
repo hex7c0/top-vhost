@@ -1,5 +1,5 @@
 {
-  "version": "1.7.8",
+  "version": "1.7.9",
   "name": "top-vhost",
   "description": "top-down virtual host",
   "keywords": [
@@ -25,22 +25,18 @@
     "url": "https://github.com/hex7c0/top-vhost/issues",
     "email": "hex7c0@gmail.com"
   },
-  "directories":{
-    "doc":"./doc"
-  },
   "main": "index.min.js",
   "dependencies": {
     "http-proxy": "1.5.3"
   },
   "devDependencies": {
-    "express": "~4.9.0",
-    "grunt-contrib-clean": "~0.6.0",
-    "grunt-contrib-uglify": "~0.6.0",
-    "grunt-endline": "~0.2.0",
-    "grunt-shell": "~1.1.1"
+    "express": "~4.9",
+    "grunt-contrib-clean": "~0.6",
+    "grunt-contrib-uglify": "~0.6",
+    "grunt-endline": "~0.2"
   },
   "engines": {
-    "node": ">=0.10"
+    "node": "^0.10"
   },
   "scripts": {
     "prepublish": "npm prune"
