@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * @file subdomain example
  * @module top-vhost

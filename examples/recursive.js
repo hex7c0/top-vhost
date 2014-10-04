@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 /**
  * @file recursive example
  * @module top-vhost
