@@ -1,5 +1,5 @@
 {
-  "version": "1.7.9",
+  "version": "1.7.10",
   "name": "top-vhost",
   "description": "top-down virtual host",
   "keywords": [
@@ -30,9 +30,10 @@
     "http-proxy": "1.5.3"
   },
   "devDependencies": {
-    "express": "~4.9",
+    "express": "~4.10",
     "grunt-contrib-clean": "~0.6",
     "grunt-contrib-uglify": "~0.6",
+    "grunt-contrib-jshint": "~0.10",
     "grunt-endline": "~0.2"
   },
   "engines": {
