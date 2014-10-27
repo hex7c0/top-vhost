@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.7.7
+ * @version 1.7.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -15,10 +15,10 @@
  * 
  * @function vhost
  * @export vhost
- * @param {Object} options - various options. Check README.md
+ * @param {Object} opt - various options. Check README.md
  * @return {Function}
  */
-module.exports = function vhost(options) {
+function vhost(opt) {
 
     /*
      * wrapper module
@@ -90,13 +90,13 @@ module.exports = function vhost(options) {
      * regex builder
      * 
      * @function expression
-     * @param {String} url - url to be parsed
+     * @param {String} urls - url to be parsed
      * @return {RegExp}
      */
-    function expression(url) {
+    function expression(urls) {
 
-        var url = url.replace(/http([s]{0,1}):\/\//i, '')
-                .replace(/\*/g, '([^\.]+)');
+        var url = urls.replace(/http([s]{0,1}):\/\//i, '')
+                .replace(/\*/g, '([^.]+)');
         // add starting index
         if (url[0] != '^') {
             url = '^' + url;
@@ -223,13 +223,13 @@ module.exports = function vhost(options) {
      * dynamic file
      * 
      * @function dynamic
-     * @param {String} file - input file
+     * @param {String} files - input file
      * @return {Function}
      */
-    function dynamics(file) {
+    function dynamics(files) {
 
         var rdc = redirect, exp = expression;
-        var file = require('path').resolve(file);
+        var file = require('path').resolve(files);
         var fs = require('fs');
         var http_proxy = require('http-proxy');
         if (!fs.existsSync(file)) {
@@ -274,13 +274,13 @@ module.exports = function vhost(options) {
      * statics file
      * 
      * @function statics
-     * @param {String} file - input file
+     * @param {String} files - input file
      * @param {Object} obj - parsed options
      * @return {Function}
      */
-    function statics(file, obj) {
+    function statics(files, obj) {
 
-        var file = require('path').resolve(file);
+        var file = require('path').resolve(files);
         if (!require('fs').existsSync(file)) {
             throw new Error(file + ' not exists');
         }
@@ -296,7 +296,7 @@ module.exports = function vhost(options) {
         }
         if (obj.domain) {
             domain = obj.domain;
-        } else if (domain = d.domain) {
+        } else if ((domain = d.domain)) {
             if (domain.constructor.name === 'RegExp') {
                 domain = domain.source;
             } else if (typeof (domain) != 'string') {
@@ -315,7 +315,7 @@ module.exports = function vhost(options) {
         } else if (Array.isArray(d.redirect) === true) {
             moved = builder(d.redirect, obj.orig || d.domain.source || d.domain);
         }
-        if (temp = Number(d.redirectStatus)) {
+        if ((temp = Number(d.redirectStatus))) {
             redirect = redirect_body(temp);
         }
 
@@ -369,7 +369,7 @@ module.exports = function vhost(options) {
         throw new Error('"framework" or "proxies" are required');
     }
 
-    var options = options || Object.create(null);
+    var options = opt || Object.create(null);
     var domain, fw, proxy;
     var moved, temp;
     var next = Object.create(null);
@@ -389,7 +389,8 @@ module.exports = function vhost(options) {
     } else {
         insensitive = undefined;
     }
-    if (domain = options.domain) {
+    domain = options.domain;
+    if (domain) {
         if (domain.constructor.name === 'RegExp') {
             domain = domain.source;
         } else if (typeof (domain) != 'string') {
@@ -413,7 +414,7 @@ module.exports = function vhost(options) {
                 || options.domain);
         next.moved = moved;
     }
-    if (temp = Number(options.redirectStatus)) {
+    if ((temp = Number(options.redirectStatus))) {
         redirect = redirect_body(temp);
     }
 
@@ -465,4 +466,5 @@ module.exports = function vhost(options) {
         return proxies(domain, moved, proxy);
     }
     throw new Error('"framework" or "proxies" are required');
-};
+}
+module.exports = vhost;
