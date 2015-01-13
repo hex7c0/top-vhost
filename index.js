@@ -10,6 +10,21 @@
  * @license GPLv3
  */
 
+/*
+ * initialize module
+ */
+// import
+try {
+  // module
+  var setHeader = require('setheaders');
+} catch (MODULE_NOT_FOUND) {
+  console.error(__filename + ' ' + MODULE_NOT_FOUND);
+  process.exit(1);
+}
+
+/*
+ * functions
+ */
 /**
  * main
  * 
@@ -73,10 +88,10 @@ function vhost(opt) {
 
       for (var i = 0, ii = reg.length; i < ii; i++) {
         if (reg[i].test(host)) {
-          // clean all headers
-          res._headers = res._headerNames = Object.create(null);
-          res.writeHead(cod, {
-            'Location': moved.orig + url,
+          var to = moved.orig + url;
+          setHeader(res, 'Location', to, true); // 0.11
+          res.writeHead(cod, { // 0.10
+            Location: to,
           });
           res.end();
           return true;
