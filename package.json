@@ -28,7 +28,7 @@
   "main": "index.min.js",
   "dependencies": {
     "http-proxy": "1.8.1",
-    "setheaders": "0.0.3"
+    "setheaders": "0.1.1"
   },
   "devDependencies": {
     "coveralls": "~2.11",

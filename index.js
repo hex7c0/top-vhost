@@ -4,7 +4,7 @@
  * @module top-vhost
  * @package top-vhost
  * @subpackage main
- * @version 1.7.0
+ * @version 1.8.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -13,14 +13,8 @@
 /*
  * initialize module
  */
-// import
-try {
-  // module
-  var setHeader = require('setheaders');
-} catch (MODULE_NOT_FOUND) {
-  console.error(__filename + ' ' + MODULE_NOT_FOUND);
-  process.exit(1);
-}
+
+var setHeader = require('setheaders').setProctedHeader;
 
 /*
  * functions
@@ -89,7 +83,7 @@ function vhost(opt) {
       for (var i = 0, ii = reg.length; i < ii; i++) {
         if (reg[i].test(host)) {
           var to = moved.orig + url;
-          setHeader(res, 'Location', to, true); // 0.11
+          setHeader(res, 'Location', to); // 0.11
           res.writeHead(cod, { // 0.10
             Location: to,
           });
@@ -111,7 +105,7 @@ function vhost(opt) {
   function expression(urls) {
 
     var url = urls.replace(/http([s]{0,1}):\/\//i, '')
-        .replace(/\*/g, '([^.]+)');
+    .replace(/\*/g, '([^.]+)');
     // add starting index
     if (url[0] != '^') {
       url = '^' + url;
@@ -210,6 +204,7 @@ function vhost(opt) {
     var domainC = domain, fwC = fw;
     if (moved) {
       var mvd = moved, rdc = redirect;
+
       return function vhost(req, res, next) {
 
         var host = req.headers.host;
@@ -434,7 +429,7 @@ function vhost(opt) {
 
   // extra
   if (options.stripWWW || options.stripOnlyWWW || options.stripHTTP
-      || options.stripHTTPS) {
+    || options.stripHTTPS) {
     temp = options.domain.source || options.domain;
     if (options.stripHTTP) {
       return strip({
