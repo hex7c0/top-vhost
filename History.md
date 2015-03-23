@@ -1,3 +1,12 @@
+v1.8.0 / 2015-03-23
+==================
+
+  * Update `http-proxy`@1.9.0
+  * Update `setheaders`@0.1.1
+  * `windows` test
+  * `iojs` test
+  * `coveralls` test
+
 v1.7.19 / 2015-01-13
 ==================
 
