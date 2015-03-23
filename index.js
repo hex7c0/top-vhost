@@ -67,6 +67,7 @@ function vhost(opt) {
   function redirect_body(code) {
 
     var cod = code;
+
     /**
      * http redirect status code
      * 
@@ -131,7 +132,7 @@ function vhost(opt) {
     return function vhost(req, res, next) {
 
       if (!redirect(res, moved, req.headers.host, req.url)) {
-        return next();
+        next();
       }
       return;
     };
@@ -156,10 +157,9 @@ function vhost(opt) {
         var host = req.headers.host;
         if (domainC.test(host)) {
           proxyC.web(req, res);
-          return true;
-        }
-        if (rdc(res, mvd, host, req.url)) {
-          return true;
+          return;
+        } else if (rdc(res, mvd, host, req.url)) {
+          return;
         }
         return next();
       };
@@ -168,8 +168,7 @@ function vhost(opt) {
 
       var host = req.headers.host;
       if (domainC.test(host)) {
-        proxyC.web(req, res);
-        return true;
+        return proxyC.web(req, res);
       }
       return next();
     };
@@ -194,11 +193,9 @@ function vhost(opt) {
 
         var host = req.headers.host;
         if (domainC.test(host)) {
-          fwC(req, res);
-          return true;
-        }
-        if (rdc(res, mvd, host, req.url)) {
-          return true;
+          return fwC(req, res);
+        } else if (rdc(res, mvd, host, req.url)) {
+          return;
         }
         return next();
       };
@@ -207,8 +204,7 @@ function vhost(opt) {
 
       var host = req.headers.host;
       if (domainC.test(host)) {
-        fwC(req, res);
-        return true;
+        return fwC(req, res);
       }
       return next();
     };
@@ -350,14 +346,11 @@ function vhost(opt) {
     // return
     if (d.dynamic) {
       return dynamics(String(d.dynamic));
-    }
-    if (obj.framework) {
+    } else if (obj.framework) {
       return framework(domain, moved, obj.framework);
-    }
-    if (obj.proxies) {
+    } else if (obj.proxies) {
       return proxies(domain, moved, obj.proxies);
-    }
-    if (d.proxies && typeof (d.proxies) === 'object') {
+    } else if (d.proxies && typeof (d.proxies) === 'object') {
       proxy = require('http-proxy').createProxyServer(d.proxies);
       return proxies(domain, moved, proxy);
     }
@@ -421,14 +414,12 @@ function vhost(opt) {
         reg: [ /./ ],
         orig: temp.replace(/http:\/\//i, 'https://'),
       });
-    }
-    if (options.stripHTTPS) {
+    } else if (options.stripHTTPS) {
       return strip({
         reg: [ /./ ],
         orig: temp.replace(/https:\/\//i, 'http://'),
       });
-    }
-    if (options.stripOnlyWWW) {
+    } else if (options.stripOnlyWWW) {
       return strip({
         reg: [ /^www./ ],
         orig: temp.replace(/www./i, '.'),
@@ -449,14 +440,11 @@ function vhost(opt) {
   // return
   if (options.dynamic) {
     return dynamics(String(options.dynamic));
-  }
-  if (options.static) {
+  } else if (options.static) {
     return statics(String(options.static), next);
-  }
-  if (fw) {
+  } else if (fw) {
     return framework(domain, moved, fw);
-  }
-  if (proxy) {
+  } else if (proxy) {
     return proxies(domain, moved, proxy);
   }
   throw new Error('"framework" or "proxies" are required');
