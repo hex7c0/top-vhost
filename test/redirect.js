@@ -12,160 +12,115 @@
 /*
  * initialize module
  */
-// import
-try {
-    var vhost = require('..');
-    var express = require('express');
-    var request = require('supertest');
-    var assert = require('assert');
-} catch (MODULE_NOT_FOUND) {
-    console.error(MODULE_NOT_FOUND);
-    process.exit(1);
-}
+var vhost = require('..');
+var express = require('express');
+var request = require('supertest');
+var assert = require('assert');
 
 /*
  * test module
  */
 describe('redirect', function() {
 
-    var child0 = express();
-    child0.get('/', function(req, res) {
+  var child0 = express();
+  child0.get('/', function(req, res) {
 
-        res.send('hello 0 /');
+    res.send('hello 0 /');
+  }).get('/admin', function(req, res) {
+
+    res.send('hello 0 /admin');
+  });
+
+  describe('301', function() {
+
+    var s = 301;
+    var father = express();
+    father.use(vhost({
+      domain: 'http://pippo.com:3000',
+      framework: child0,
+      redirect: [ 'http://*.pippo.com', 'http://pluto.com' ]
+    }));
+
+    it('pippo.com/ no redirect', function(done) {
+
+      request(father).get('/').set('Host', 'pippo.com:3000').expect(200, done);
     });
-    child0.get('/admin', function(req, res) {
+    it('api.pippo.com/', function(done) {
 
-        res.send('hello 0 /admin');
-    });
+      request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
+        function(err, res) {
 
-    describe('301', function() {
-
-        var s = 301;
-        var father = express();
-        father.use(vhost({
-            domain: 'http://pippo.com:3000',
-            framework: child0,
-            redirect: [ 'http://*.pippo.com', 'http://pluto.com' ]
-        }));
-
-        it('pippo.com/ no redirect', function(done) {
-
-            request(father).get('/').set('Host', 'pippo.com:3000')
-                    .expect(200, done);
-        });
-        it('api.pippo.com/', function(done) {
-
-            request(father)
-                    .get('/')
-                    .set('Host', 'api.pippo.com:3000')
-                    .expect(s)
-                    .end(function(err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        assert
-                                .equal(res.header.location, 'http://pippo.com:3000/');
-                        done();
-                    });
-        });
-        it('pluto.com/', function(done) {
-
-            request(father)
-                    .get('/')
-                    .set('Host', 'pluto.com:3000')
-                    .expect(s)
-                    .end(function(err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        assert
-                                .equal(res.header.location, 'http://pippo.com:3000/');
-                        done();
-                    });
-        });
-        it('pluto.com/admin', function(done) {
-
-            request(father)
-                    .get('/')
-                    .set('Host', 'pluto.com:3000')
-                    .expect(s)
-                    .end(function(err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        assert
-                                .equal(res.header.location, 'http://pippo.com:3000/');
-                        done();
-                    });
+          assert.equal(err, null);
+          assert.equal(res.header.location, 'http://pippo.com:3000/');
+          done();
         });
     });
+    it('pluto.com/', function(done) {
 
-    describe('307', function() {
+      request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
+        function(err, res) {
 
-        var s = 307;
-        var father = express();
-        father.use(vhost({
-            domain: 'http://pippo.com:3000',
-            framework: child0,
-            redirect: [ 'http://*.pippo.com', 'http://pluto.com' ],
-            redirectStatus: 307
-        }));
-
-        it('pippo.com/ no redirect', function(done) {
-
-            request(father).get('/').set('Host', 'pippo.com:3000')
-                    .expect(200, done);
-        });
-        it('api.pippo.com/', function(done) {
-
-            request(father)
-                    .get('/')
-                    .set('Host', 'api.pippo.com:3000')
-                    .expect(s)
-                    .end(function(err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        assert
-                                .equal(res.header.location, 'http://pippo.com:3000/');
-                        done();
-                    });
-        });
-        it('pluto.com/', function(done) {
-
-            request(father)
-                    .get('/')
-                    .set('Host', 'pluto.com:3000')
-                    .expect(s)
-                    .end(function(err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        assert
-                                .equal(res.header.location, 'http://pippo.com:3000/');
-                        done();
-                    });
-        });
-        it('pluto.com/admin', function(done) {
-
-            request(father)
-                    .get('/')
-                    .set('Host', 'pluto.com:3000')
-                    .expect(s)
-                    .end(function(err, res) {
-
-                        if (err) {
-                            throw err;
-                        }
-                        assert
-                                .equal(res.header.location, 'http://pippo.com:3000/');
-                        done();
-                    });
+          assert.equal(err, null);
+          assert.equal(res.header.location, 'http://pippo.com:3000/');
+          done();
         });
     });
+    it('pluto.com/admin', function(done) {
+
+      request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
+        function(err, res) {
+
+          assert.equal(err, null);
+          assert.equal(res.header.location, 'http://pippo.com:3000/');
+          done();
+        });
+    });
+  });
+
+  describe('307', function() {
+
+    var s = 307;
+    var father = express();
+    father.use(vhost({
+      domain: 'http://pippo.com:3000',
+      framework: child0,
+      redirect: [ 'http://*.pippo.com', 'http://pluto.com' ],
+      redirectStatus: 307
+    }));
+
+    it('pippo.com/ no redirect', function(done) {
+
+      request(father).get('/').set('Host', 'pippo.com:3000').expect(200, done);
+    });
+    it('api.pippo.com/', function(done) {
+
+      request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
+        function(err, res) {
+
+          assert.equal(err, null);
+          assert.equal(res.header.location, 'http://pippo.com:3000/');
+          done();
+        });
+    });
+    it('pluto.com/', function(done) {
+
+      request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
+        function(err, res) {
+
+          assert.equal(err, null);
+          assert.equal(res.header.location, 'http://pippo.com:3000/');
+          done();
+        });
+    });
+    it('pluto.com/admin', function(done) {
+
+      request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
+        function(err, res) {
+
+          assert.equal(err, null);
+          assert.equal(res.header.location, 'http://pippo.com:3000/');
+          done();
+        });
+    });
+  });
 });

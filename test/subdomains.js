@@ -12,102 +12,90 @@
 /*
  * initialize module
  */
-// import
-try {
-    var vhost = require('..');
-    var express = require('express');
-    var request = require('supertest');
-    var assert = require('assert');
-} catch (MODULE_NOT_FOUND) {
-    console.error(MODULE_NOT_FOUND);
-    process.exit(1);
-}
+var vhost = require('..');
+var express = require('express');
+var request = require('supertest');
+var assert = require('assert');
 
 /*
  * test module
  */
 describe('subdomains', function() {
 
-    var s = 200;
-    var father = express();
-    var child0 = express();
-    var child1 = express();
-    var child2 = express();
+  var s = 200;
+  var father = express();
+  var child0 = express();
+  var child1 = express();
+  var child2 = express();
+
+  before(function(done) {
+
     child0.get('/', function(req, res) {
 
-        res.send('hello 0 /');
+      res.send('hello 0 /');
     });
     child1.get('/', function(req, res) {
 
-        res.send('hello 1 /');
+      res.send('hello 1 /');
     });
     child2.get('/', function(req, res) {
 
-        res.send('hello 2 /');
-    });
-    child2.get('/admin', function(req, res) {
+      res.send('hello 2 /');
+    }).get('/admin', function(req, res) {
 
-        res.send('hello 2 /admin');
+      res.send('hello 2 /admin');
     });
     father.use(vhost({
-        domain: 'http://api.pippo.com:3000',
-        framework: child0
+      domain: 'http://api.pippo.com:3000',
+      framework: child0
+    })).use(vhost({
+      domain: 'http://*.pippo.com:3000',
+      framework: child1
+    })).use(vhost({
+      domain: 'http://pippo.com:3000',
+      framework: child2
     }));
-    father.use(vhost({
-        domain: 'http://*.pippo.com:3000',
-        framework: child1
-    }));
-    father.use(vhost({
-        domain: 'http://pippo.com:3000',
-        framework: child2
-    }));
+    done();
+  });
 
-    it('api.pippo.com:3000/', function(done) {
+  it('should return api.pippo.com:3000/', function(done) {
 
-        request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s)
-                .end(function(err, res) {
+    request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
+      function(err, res) {
 
-                    if (err) {
-                        throw err;
-                    }
-                    assert.equal(res.text, 'hello 0 /');
-                    done();
-                });
-    });
-    it('poi.pippo.com:3000/', function(done) {
+        assert.equal(err, null);
+        assert.equal(res.text, 'hello 0 /');
+        done();
+      });
+  });
+  it('should return poi.pippo.com:3000/', function(done) {
 
-        request(father).get('/').set('Host', 'poi.pippo.com:3000').expect(s)
-                .end(function(err, res) {
+    request(father).get('/').set('Host', 'poi.pippo.com:3000').expect(s).end(
+      function(err, res) {
 
-                    if (err) {
-                        throw err;
-                    }
-                    assert.equal(res.text, 'hello 1 /');
-                    done();
-                });
-    });
-    it('pippo.com:3000/', function(done) {
+        assert.equal(err, null);
+        assert.equal(res.text, 'hello 1 /');
+        done();
+      });
+  });
+  it('should return pippo.com:3000/', function(done) {
 
-        request(father).get('/').set('Host', 'pippo.com:3000').expect(s)
-                .end(function(err, res) {
+    request(father).get('/').set('Host', 'pippo.com:3000').expect(s).end(
+      function(err, res) {
 
-                    if (err) {
-                        throw err;
-                    }
-                    assert.equal(res.text, 'hello 2 /');
-                    done();
-                });
-    });
-    it('pippo.com:3000/admin', function(done) {
+        assert.equal(err, null);
+        assert.equal(res.text, 'hello 2 /');
+        done();
+      });
+  });
+  it('should return pippo.com:3000/admin', function(done) {
 
-        request(father).get('/admin').set('Host', 'pippo.com:3000').expect(s)
-                .end(function(err, res) {
+    request(father).get('/admin').set('Host', 'pippo.com:3000').expect(s).end(
+      function(err, res) {
 
-                    if (err) {
-                        throw err;
-                    }
-                    assert.equal(res.text, 'hello 2 /admin');
-                    done();
-                });
-    });
+        assert.equal(err, null);
+        assert.equal(res.text, 'hello 2 /admin');
+        done();
+      });
+  });
 });
