@@ -1,8 +1,10 @@
 # [top-vhost](http://supergiovane.tk/#/top-vhost)
 
-[![NPM version](https://badge.fury.io/js/top-vhost.svg)](http://badge.fury.io/js/top-vhost)
-[![Build Status](https://travis-ci.org/hex7c0/top-vhost.svg?branch=master)](https://travis-ci.org/hex7c0/top-vhost)
-[![Dependency Status](https://david-dm.org/hex7c0/top-vhost/status.svg)](https://david-dm.org/hex7c0/top-vhost)
+[![NPM version](https://img.shields.io/npm/v/top-vhost.svg)](https://www.npmjs.com/package/top-vhost)
+[![Linux Status](https://img.shields.io/travis/hex7c0/top-vhost.svg?label=linux)](https://travis-ci.org/hex7c0/top-vhost)
+[![Windows Status](https://img.shields.io/appveyor/ci/hex7c0/top-vhost.svg?label=windows)](https://ci.appveyor.com/project/hex7c0/top-vhost)
+[![Dependency Status](https://img.shields.io/david/hex7c0/top-vhost.svg)](https://david-dm.org/hex7c0/top-vhost)
+[![Coveralls](https://img.shields.io/coveralls/hex7c0/top-vhost.svg)](https://coveralls.io/r/hex7c0/top-vhost)
 
 Top-Down virtual host for [nodejs](http://nodejs.org/).
 Optional, you can set this module like a proxy or a redirect.
@@ -29,13 +31,13 @@ var child = require('express')();
 
 child.get('/',function(req,res) {
 
-    res.send('hello');
+  res.send('hello');
 });
+
 father.use(vhost({
-    domain: 'foo.com',
-    framework: child,
-}));
-father.listen(3000);
+  domain: 'foo.com',
+  framework: child,
+})).listen(3000);
 ```
 
 ### vhost(options)
@@ -55,10 +57,10 @@ father.listen(3000);
  - `framework` - **Function** Functions related to this virtual host *(optional)*
  - `proxies` - **Object** Object for build http proxy, related to [`http-proxy`](https://github.com/nodejitsu/node-http-proxy) *(optional)*
 
-related to https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy.js#L34-L51
+related to https://github.com/nodejitsu/node-http-proxy/blob/master/lib/http-proxy.js#L29-L52
 
 ## Examples
 
-Take a look at my [examples](https://github.com/hex7c0/top-vhost/tree/master/examples)
+Take a look at my [examples](examples)
 
-### [License GPLv3](http://opensource.org/licenses/GPL-3.0)
+### [License GPLv3](LICENSE)
