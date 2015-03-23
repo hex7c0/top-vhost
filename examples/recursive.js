@@ -12,69 +12,62 @@
 /*
  * initialize module
  */
-// import
-try {
-    var vhost = require('../index.min.js'); // use require('top-vhost') instead
-    var express = require('express');
-    var father = express();
-    var child0 = express();
-    var child1 = express();
-    var child2 = express();
-} catch (MODULE_NOT_FOUND) {
-    console.error(MODULE_NOT_FOUND);
-    process.exit(1);
-}
+var vhost = require('..'); // use require('top-vhost') instead
+var express = require('express');
+var father = express();
+var child0 = express();
+var child1 = express();
+var child2 = express();
 
 // recursive
 // if a search api.pippo.com: father -> child0 -> child 1
 father.use(vhost({
-    domain: 'http://api.pippo.com',
-    proxies: {
-        target: 'http://127.0.0.1:3001',
-        xfwd: true
-    }
+  domain: 'http://api.pippo.com',
+  proxies: {
+    target: 'http://127.0.0.1:3001',
+    xfwd: true
+  }
 }));
+
 child0.use(vhost({
-    domain: 'http://*.pippo.com',
-    proxies: {
-        target: 'http://127.0.0.1:3002',
-        xfwd: true
-    }
+  domain: 'http://*.pippo.com',
+  proxies: {
+    target: 'http://127.0.0.1:3002',
+    xfwd: true
+  }
 }));
+
 child1.use(vhost({
-    domain: 'http://pippo.com',
-    proxies: {
-        target: 'http://127.0.0.1:3003',
-        xfwd: true
-    }
+  domain: 'http://pippo.com',
+  proxies: {
+    target: 'http://127.0.0.1:3003',
+    xfwd: true
+  }
 }));
 
 // express routing
-child0.get('/',function(req,res) {
+child0.get('/', function(req, res) {
 
-    res.send('hello 0 /');
-});
-child0.get('/admin',function(req,res) {
+  res.send('hello 0 /');
+}).get('/admin', function(req, res) {
 
-    res.send('hello 0 /admin');
-});
-
-child1.get('/',function(req,res) {
-
-    res.send('hello 1 /');
-});
-child1.get('/admin',function(req,res) {
-
-    res.send('hello 1 /admin');
+  res.send('hello 0 /admin');
 });
 
-child2.get('/',function(req,res) {
+child1.get('/', function(req, res) {
 
-    res.send('hello 2 /');
+  res.send('hello 1 /');
+}).get('/admin', function(req, res) {
+
+  res.send('hello 1 /admin');
 });
-child2.get('/admin',function(req,res) {
 
-    res.send('hello 2 /admin');
+child2.get('/', function(req, res) {
+
+  res.send('hello 2 /');
+}).get('/admin', function(req, res) {
+
+  res.send('hello 2 /admin');
 });
 
 // server starting

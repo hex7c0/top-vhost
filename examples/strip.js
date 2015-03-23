@@ -12,37 +12,28 @@
 /*
  * initialize module
  */
-// import
-try {
-    var vhost = require('../index.min.js'); // use require('top-vhost') instead
-    var express = require('express');
-    var father = express();
-    var child0 = express();
-} catch (MODULE_NOT_FOUND) {
-    console.error(MODULE_NOT_FOUND);
-    process.exit(1);
-}
+var vhost = require('..'); // use require('top-vhost') instead
+var express = require('express');
+var father = express();
+var child0 = express();
 
 // express routing
-child0.get('/',function(req,res) {
+child0.get('/', function(req, res) {
 
-    res.send('hello 0 /');
-});
-child0.get('/admin',function(req,res) {
+  res.send('hello 0 /');
+}).get('/admin', function(req, res) {
 
-    res.send('hello 0 /admin');
+  res.send('hello 0 /admin');
 });
 
 // server starting
 father.use(vhost({
-    domain: 'http://pippo.com:3000',
-    framework: child0,
-    redirect: ['http://pluto.com'],
-    stripWWW: true,
-}));
-father.use(vhost({
-    domain: 'http://api.pippo.com:3000',
-    stripHTTP: true,
-}));
-father.listen(3000);
+  domain: 'http://pippo.com:3000',
+  framework: child0,
+  redirect: [ 'http://pluto.com' ], // http://pluto.com:3000 -> http://pippo.com:3000/
+  stripWWW: true, // http://www.pippo.com:3000 -> http://pippo.com:3000/
+})).use(vhost({
+  domain: 'http://api.pippo.com:3000',
+  stripHTTP: true, // http://api.pippo.com:3000 -> https://api.pippo.com:3000
+})).listen(3000);
 console.log('starting server on port 3000');
