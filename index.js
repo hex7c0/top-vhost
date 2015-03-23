@@ -116,21 +116,6 @@ function vhost(opt) {
     return new RegExp(url, insensitive);
   }
 
-  /**
-   * ending function
-   * 
-   * @function end
-   * @param {Function} next - next op
-   * @return {Boolean}
-   */
-  function end(next) {
-
-    if (next) {
-      return next();
-    }
-    return false;
-  }
-
   /*
    * return functions
    */
@@ -146,7 +131,7 @@ function vhost(opt) {
     return function vhost(req, res, next) {
 
       if (!redirect(res, moved, req.headers.host, req.url)) {
-        end(next);
+        return next();
       }
       return;
     };
@@ -176,7 +161,7 @@ function vhost(opt) {
         if (rdc(res, mvd, host, req.url)) {
           return true;
         }
-        return end(next);
+        return next();
       };
     }
     return function vhost(req, res, next) {
@@ -186,7 +171,7 @@ function vhost(opt) {
         proxyC.web(req, res);
         return true;
       }
-      return end(next);
+      return next();
     };
   }
 
@@ -215,7 +200,7 @@ function vhost(opt) {
         if (rdc(res, mvd, host, req.url)) {
           return true;
         }
-        return end(next);
+        return next();
       };
     }
     return function vhost(req, res, next) {
@@ -225,7 +210,7 @@ function vhost(opt) {
         fwC(req, res);
         return true;
       }
-      return end(next);
+      return next();
     };
   }
 
@@ -276,7 +261,7 @@ function vhost(opt) {
           return true;
         }
       }
-      return end(next);
+      return next();
     };
   }
 
