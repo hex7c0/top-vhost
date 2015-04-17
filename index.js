@@ -2,7 +2,6 @@
 /**
  * @file top-vhost main
  * @module top-vhost
- * @package top-vhost
  * @subpackage main
  * @version 1.8.0
  * @author hex7c0 <hex7c0@gmail.com>
@@ -13,7 +12,6 @@
 /*
  * initialize module
  */
-
 var setHeader = require('setheaders').setProctedHeader;
 
 /*
