@@ -1,6 +1,7 @@
 v1.8.2 / 2015-07-07
 ==================
 
+  * Fix SPDX license
   * Improve Iojs test
   * Update `http-proxy`@1.11.1
 
