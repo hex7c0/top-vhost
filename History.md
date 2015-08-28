@@ -1,8 +1,13 @@
+v1.8.4 / 2015-08-28
+==================
+
+  * Update `setheaders`@0.1.3
+
 v1.8.3 / 2015-07-07
 ==================
 
   * Fix SPDX license
-  * Improve Iojs test
+  * Improve `iojs` test
   * Update `http-proxy`@1.11.1
 
 v1.8.1 / 2015-04-17
@@ -22,7 +27,7 @@ v1.8.0 / 2015-03-23
 v1.7.19 / 2015-01-13
 ==================
 
-  * Fix Header on Nodejs 0.11
+  * Fix Header on `nodejs@0.11`
 
 v1.7.18 / 2015-01-01
 ==================
