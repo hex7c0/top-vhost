@@ -23,16 +23,21 @@ var assert = require('assert');
 describe('strip', function() {
 
   var s = 301;
+  var father;
 
   describe('stripOnlyWWW', function() {
 
-    var father = express();
-    father.use(vhost({
-      domain: 'http://pippo.com:3000',
-      stripOnlyWWW: true,
-    })).get('/', function(req, res) {
+    before(function(done) {
 
-      res.send('hello father /');
+      father = express();
+      father.use(vhost({
+        domain: 'http://pippo.com:3000',
+        stripOnlyWWW: true,
+      })).get('/', function(req, res) {
+
+        res.send('hello father /');
+      });
+      done();
     });
 
     it('pippo.com/ no redirect', function(done) {
@@ -54,17 +59,31 @@ describe('strip', function() {
           done();
         });
     });
+    it('wWw.pippo.com/', function(done) {
+
+      request(father).get('/').set('Host', 'wWw.pippo.com:3000').expect(s).end(
+        function(err, res) {
+
+          assert.equal(err, null);
+          assert.equal(res.header.location, 'http://pippo.com:3000/');
+          done();
+        });
+    });
   });
 
   describe('stripHTTP', function() {
 
-    var father = express();
-    father.use(vhost({
-      domain: 'http://pippo.com:3000',
-      stripHTTP: true,
-    })).get('/', function(req, res) {
+    before(function(done) {
 
-      res.send('hello father /');
+      father = express();
+      father.use(vhost({
+        domain: 'http://pippo.com:3000',
+        stripHTTP: true,
+      })).get('/', function(req, res) {
+
+        res.send('hello father /');
+      });
+      done();
     });
 
     it('pippo.com/ https redirect', function(done) {
@@ -97,17 +116,31 @@ describe('strip', function() {
           done();
         });
     });
+    it('http://www.pippo.com/ https redirect', function(done) {
+
+      request(father).get('/').set('Host', 'http://www.pippo.com:3000').expect(
+        s).end(function(err, res) {
+
+        assert.equal(err, null);
+        assert.equal(res.header.location, 'https://pippo.com:3000/');
+        done();
+      });
+    });
   });
 
   describe('stripHTTPS', function() {
 
-    var father = express();
-    father.use(vhost({
-      domain: 'http://pippo.com:3000',
-      stripHTTPS: true,
-    })).get('/', function(req, res) {
+    before(function(done) {
 
-      res.send('hello father /');
+      father = express();
+      father.use(vhost({
+        domain: 'http://pippo.com:3000',
+        stripHTTPS: true,
+      })).get('/', function(req, res) {
+
+        res.send('hello father /');
+      });
+      done();
     });
 
     it('pippo.com/ http redirect', function(done) {

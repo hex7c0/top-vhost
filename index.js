@@ -324,18 +324,18 @@ function vhost(opt) {
       }
       if (d.stripOnlyWWW) {
         return strip({
-          reg: [ /^www./ ],
+          reg: [ /^www./i ],
           orig: temp.replace(/www./i, '.'),
         });
       }
       if (d.stripWWW) {
         if (typeof (moved) != 'object') {
           moved = {
-            reg: [ /^www./ ],
+            reg: [ /^www./i ],
             orig: domain,
           };
         } else {
-          moved.reg.push(/^www./);
+          moved.reg.push(/^www./i);
         }
       }
     }
@@ -418,18 +418,18 @@ function vhost(opt) {
       });
     } else if (options.stripOnlyWWW) {
       return strip({
-        reg: [ /^www./ ],
+        reg: [ /^www./i ],
         orig: temp.replace(/www./i, '.'),
       });
     }
     if (options.stripWWW) {
       if (typeof (moved) != 'object') {
         moved = {
-          reg: [ /^www./ ],
+          reg: [ /^www./i ],
           orig: domain,
         };
       } else {
-        moved.reg.push(/^www./);
+        moved.reg.push(/^www./i);
       }
     }
   }
