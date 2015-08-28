@@ -46,7 +46,7 @@ function vhost(opt) {
    */
   function builder(moved, domain) {
 
-    for (var i = 0, ii = moved.length; i < ii; i++) {
+    for (var i = 0, ii = moved.length; i < ii; ++i) {
       moved[i] = expression(moved[i]);
     }
     return {
@@ -79,7 +79,7 @@ function vhost(opt) {
 
       var reg = moved.reg;
 
-      for (var i = 0, ii = reg.length; i < ii; i++) {
+      for (var i = 0, ii = reg.length; i < ii; ++i) {
         if (reg[i].test(host)) {
           var to = moved.orig + url;
           setHeader(res, 'Location', to); // 0.11
@@ -103,8 +103,7 @@ function vhost(opt) {
    */
   function expression(urls) {
 
-    var url = urls.replace(/http([s]{0,1}):\/\//i, '')
-    .replace(/\*/g, '([^.]+)');
+    var url = urls.replace(/http[s]?:\/\//i, '').replace(/\*/g, '([^.]+)');
     // add starting index
     if (url[0] != '^') {
       url = '^' + url;
@@ -230,7 +229,7 @@ function vhost(opt) {
       var host = req.headers.host;
       // file refresh; instead require(), that use cache
       var data = JSON.parse(fs.readFileSync(file, 'utf8'));
-      for (var i = 0, ii = data.length; i < ii; i++) {
+      for (var i = 0, ii = data.length; i < ii; ++i) {
         var moved;
         var d = data[i];
         if (Boolean(d.insensitive)) {
