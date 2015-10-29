@@ -1,4 +1,4 @@
-# [top-vhost](http://supergiovane.tk/#/top-vhost)
+# [top-vhost](https://github.com/hex7c0/top-vhost)
 
 [![NPM version](https://img.shields.io/npm/v/top-vhost.svg)](https://www.npmjs.com/package/top-vhost)
 [![Linux Status](https://img.shields.io/travis/hex7c0/top-vhost.svg?label=linux)](https://travis-ci.org/hex7c0/top-vhost)

@@ -1,5 +1,5 @@
 {
-  "version": "1.8.4",
+  "version": "1.8.5",
   "name": "top-vhost",
   "description": "top-down virtual host",
   "keywords": [
@@ -11,7 +11,7 @@
     "redirect"
   ],
   "preferGlobal": false,
-  "homepage": "http://supergiovane.tk/#/top-vhost",
+  "homepage": "https://github.com/hex7c0/top-vhost",
   "author": {
     "name": "hex7c0",
     "email": "hex7c0@gmail.com",
