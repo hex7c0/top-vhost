@@ -1,13 +1,19 @@
+v1.8.7 / 2016-02-13
+==================
+
+  * Tested against `node`@5.3
+  * Update `http-proxy`@1.13.1
+
 v1.8.6 / 2015-12-09
 ==================
 
-  * Test `node`@5
+  * Tested against`node`@5
   * Update `setheaders`@0.1.5
 
 v1.8.5 / 2015-10-29
 ==================
 
-  * Test `node`@4
+  * Tested against`node`@4
   * Update `setheaders`@0.1.4
   * Update `http-proxy`@1.12.0
 
@@ -134,7 +140,7 @@ v1.7.0 / 2014-08-04
 v1.6.0 / 2014-07-27
 ==================
 
-  * Test "node": ">=0.10.0" only
+  * Tested against"node": ">=0.10.0" only
   * Using task runner `grunt`
   * ".npmignore" more aggressive
   * `uglify` compiles
