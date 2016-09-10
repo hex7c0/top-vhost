@@ -15,7 +15,7 @@
   "author": {
     "name": "hex7c0",
     "email": "hex7c0@gmail.com",
-    "url": "http://hex7c0.tk/"
+    "url": "https://hex7c0.github.io/"
   },
   "repository": {
     "type": "git",
@@ -31,15 +31,14 @@
     "setheaders": "0.1.5"
   },
   "devDependencies": {
-    "coveralls": "~2.11",
-    "express": "~4.13",
+    "express": "~4.14",
     "grunt-contrib-clean": "~1.0",
-    "grunt-contrib-uglify": "~1.0",
+    "grunt-contrib-uglify": "~2.0",
     "grunt-contrib-jshint": "~1.0",
     "grunt-endline": "~0.5",
     "istanbul": "~0.4",
     "mocha": "2.2.5",
-    "supertest": "~1.2"
+    "supertest": "~2.0"
   },
   "engines": {
     "node": ">=0.10"
