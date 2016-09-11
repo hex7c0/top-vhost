@@ -50,7 +50,7 @@ describe('redirect', function() {
       request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -60,7 +60,7 @@ describe('redirect', function() {
       request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -70,7 +70,7 @@ describe('redirect', function() {
       request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -97,7 +97,7 @@ describe('redirect', function() {
       request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -107,7 +107,7 @@ describe('redirect', function() {
       request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -117,7 +117,7 @@ describe('redirect', function() {
       request(father).get('/').set('Host', 'pluto.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });

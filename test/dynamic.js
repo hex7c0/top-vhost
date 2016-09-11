@@ -52,7 +52,7 @@ describe('dynamic', function() {
     request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
       function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.equal(res.text, 'hello 0 /');
         done();
       });
@@ -62,7 +62,7 @@ describe('dynamic', function() {
     request(father).get('/').set('Host', 'poi.pippo.com:3000').expect(s).end(
       function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.equal(res.text, 'hello 1 /');
         done();
       });
@@ -72,7 +72,7 @@ describe('dynamic', function() {
     request(father).get('/').set('Host', 'pippo.com:3000').expect(s).end(
       function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.equal(res.text, 'hello 2 /');
         done();
       });
@@ -82,7 +82,7 @@ describe('dynamic', function() {
     request(father).get('/admin').set('Host', 'pippo.com:3000').expect(s).end(
       function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.equal(res.text, 'hello 2 /admin');
         done();
       });

@@ -54,7 +54,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'www.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -64,7 +64,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'wWw.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -91,7 +91,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'https://pippo.com:3000/');
           done();
         });
@@ -101,7 +101,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'https://pippo.com:3000/');
           done();
         });
@@ -111,7 +111,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'www.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'https://pippo.com:3000/');
           done();
         });
@@ -121,7 +121,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'http://www.pippo.com:3000').expect(
         s).end(function(err, res) {
 
-        assert.equal(err, null);
+        assert.ifError(err);
         assert.equal(res.header.location, 'https://pippo.com:3000/');
         done();
       });
@@ -148,7 +148,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -158,7 +158,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'api.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
@@ -168,7 +168,7 @@ describe('strip', function() {
       request(father).get('/').set('Host', 'www.pippo.com:3000').expect(s).end(
         function(err, res) {
 
-          assert.equal(err, null);
+          assert.ifError(err);
           assert.equal(res.header.location, 'http://pippo.com:3000/');
           done();
         });
