@@ -1,3 +1,10 @@
+v1.9.0 / 2016-09-12
+==================
+
+  * Tested against `node`@6
+  * Update `http-proxy`@1.14.0
+  * Update `setheaders`@0.1.7
+
 v1.8.8 / 2016-04-28
 ==================
 
