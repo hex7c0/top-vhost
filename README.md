@@ -1,7 +1,7 @@
 # [top-vhost](https://github.com/hex7c0/top-vhost)
 
 [![NPM version](https://img.shields.io/npm/v/top-vhost.svg)](https://www.npmjs.com/package/top-vhost)
-[![Linux Status](https://img.shields.io/travis/hex7c0/top-vhost.svg?label=linux)](https://travis-ci.org/hex7c0/top-vhost)
+[![Linux Status](https://img.shields.io/travis/hex7c0/top-vhost.svg?label=linux-osx)](https://travis-ci.org/hex7c0/top-vhost)
 [![Windows Status](https://img.shields.io/appveyor/ci/hex7c0/top-vhost.svg?label=windows)](https://ci.appveyor.com/project/hex7c0/top-vhost)
 [![Dependency Status](https://img.shields.io/david/hex7c0/top-vhost.svg)](https://david-dm.org/hex7c0/top-vhost)
 [![Coveralls](https://img.shields.io/coveralls/hex7c0/top-vhost.svg)](https://coveralls.io/r/hex7c0/top-vhost)
