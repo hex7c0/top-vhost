@@ -2,8 +2,7 @@
 /**
  * @file top-vhost main
  * @module top-vhost
- * @subpackage main
- * @version 1.9.0
+ * @version 1.10.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3

@@ -1,3 +1,11 @@
+v1.10.0 / 2017-03-06
+==================
+
+  * Tested against `node`@7
+  * Remove support for `node`@0
+  * Update `http-proxy`@1.16.2
+  * Update `setheaders`@0.2.0
+
 v1.9.1 / 2016-09-25
 ==================
 
