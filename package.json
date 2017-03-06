@@ -28,7 +28,7 @@
   "main": "index.min.js",
   "dependencies": {
     "http-proxy": "1.15.1",
-    "setheaders": "0.1.7"
+    "setheaders": "0.2.0"
   },
   "devDependencies": {
     "express": "~4.15",
