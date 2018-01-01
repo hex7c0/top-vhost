@@ -1,3 +1,9 @@
+v1.11.0 / 2018-01-01
+==================
+
+  * Tested against `node`@9
+  * Update `setheaders`@0.4.0
+
 v1.10.0 / 2017-03-06
 ==================
 
@@ -15,7 +21,6 @@ v1.9.1 / 2016-09-25
 v1.9.0 / 2016-09-12
 ==================
 
-  * Tested against `node`@6
   * Update `http-proxy`@1.14.0
   * Update `setheaders`@0.1.7
 
