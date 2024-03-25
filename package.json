@@ -27,18 +27,18 @@
   },
   "main": "index.min.js",
   "dependencies": {
-    "http-proxy": "1.16.2",
+    "http-proxy": "1.18.1",
     "setheaders": "0.4.0"
   },
   "devDependencies": {
-    "express": "~4.16",
-    "grunt": "~1.0",
+    "express": "~4.19",
+    "grunt": "~1.5",
     "grunt-contrib-uglify": "~3.3",
-    "grunt-contrib-jshint": "~1.1",
+    "grunt-contrib-jshint": "~3.2",
     "grunt-endline": "~0.7",
     "grunt-safer-regex": "~0.1",
     "istanbul": "~0.4",
-    "mocha": "2.2.5",
+    "mocha": "10.3.0",
     "supertest": "~3.0"
   },
   "engines": {
